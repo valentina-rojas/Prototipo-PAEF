@@ -23,13 +23,16 @@ public class ConfiguracionTexto : MonoBehaviour
 
     private void Start()
     {
-     
         panelConfiguracion.SetActive(false);
      
         botonConfiguracion.onClick.AddListener(TogglePanel);
 
         sliderTamanoFuente.onValueChanged.AddListener(CambiarTamanoFuente);
-        sliderEspaciadoLineas.onValueChanged.AddListener(v => textoCuento.lineSpacing = v);
+        sliderEspaciadoLineas.onValueChanged.AddListener(v => 
+        {
+            textoCuento.lineSpacing = v;
+            ForzarActualizarLayout();
+        });
         dropdownFuente.onValueChanged.AddListener(CambiarFuente);
         dropdownAlineacion.onValueChanged.AddListener(CambiarAlineacion);
 
@@ -75,6 +78,7 @@ public class ConfiguracionTexto : MonoBehaviour
     private void CambiarTamanoFuente(float nuevoTamano)
     {
         textoCuento.fontSize = nuevoTamano;
+        ForzarActualizarLayout();
     }
 
     private void CambiarFuente(int indice)
@@ -82,6 +86,7 @@ public class ConfiguracionTexto : MonoBehaviour
         if (indice >= 0 && indice < fuentesDisponibles.Length && fuentesDisponibles[indice] != null)
         {
             textoCuento.font = fuentesDisponibles[indice];
+            ForzarActualizarLayout();
         }
     }
 
@@ -93,6 +98,16 @@ public class ConfiguracionTexto : MonoBehaviour
             case 1: textoCuento.alignment = TextAlignmentOptions.Center; break;
             case 2: textoCuento.alignment = TextAlignmentOptions.Right; break;
             case 3: textoCuento.alignment = TextAlignmentOptions.Justified; break;
+        }
+        ForzarActualizarLayout();
+    }
+
+    // Este método fuerza que el Content del ScrollView se recalcule
+    private void ForzarActualizarLayout()
+    {
+        if (textoCuento != null && textoCuento.transform.parent != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)textoCuento.transform.parent);
         }
     }
 }
