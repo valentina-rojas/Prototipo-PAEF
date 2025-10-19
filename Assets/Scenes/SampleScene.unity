@@ -7044,7 +7044,7 @@ MonoBehaviour:
   cuentosManager: {fileID: 1482380401}
   cuestionarioManager: {fileID: 1700682939}
   basesCuentos:
-  - {fileID: 11400000, guid: b7b85dd96bdebb241851bb04a0d041bd, type: 2}
+  - {fileID: 11400000, guid: c827f000f159c8e45ad44cdf0a38c268, type: 2}
   botonAlimentar: {fileID: 108702528}
   panelGeneros: {fileID: 1581074301}
   panelCuento: {fileID: 1498401927}
