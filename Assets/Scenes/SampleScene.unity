@@ -2266,7 +2266,7 @@ GameObject:
   - component: {fileID: 503290676}
   - component: {fileID: 503290675}
   m_Layer: 5
-  m_Name: Boton Misterio
+  m_Name: Boton 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3088,7 +3088,7 @@ GameObject:
   - component: {fileID: 643197608}
   - component: {fileID: 643197607}
   m_Layer: 5
-  m_Name: Boton Aventura
+  m_Name: Boton 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6328,7 +6328,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1581074302
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7043,13 +7043,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cuentosManager: {fileID: 1482380401}
   cuestionarioManager: {fileID: 1700682939}
+  basesCuentos:
+  - {fileID: 11400000, guid: b7b85dd96bdebb241851bb04a0d041bd, type: 2}
   botonAlimentar: {fileID: 108702528}
   panelGeneros: {fileID: 1581074301}
   panelCuento: {fileID: 1498401927}
   panelCuestionario: {fileID: 1263012606}
-  botonCienciaFiccion: {fileID: 1846413987}
-  botonMisterio: {fileID: 503290675}
-  botonAventura: {fileID: 643197607}
+  boton1: {fileID: 1846413987}
+  boton2: {fileID: 503290675}
+  boton3: {fileID: 643197607}
   textoNivel: {fileID: 2021843714}
   flechaNivel: {fileID: 101416818}
   duracionFlecha: 2
@@ -7379,7 +7381,7 @@ GameObject:
   - component: {fileID: 1846413988}
   - component: {fileID: 1846413987}
   m_Layer: 5
-  m_Name: Boton Ciencia Ficcion
+  m_Name: Boton 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

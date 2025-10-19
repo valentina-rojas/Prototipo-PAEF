@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: BaseDeCuentos
+  m_EditorClassIdentifier: Assembly-CSharp::BaseDeCuentos
+  cuentos:
+  - genero: "Ciencia ficci\xF3n                                                                                "
+    escenario: "Estaci\xF3n espacial                          "
+    personaje: "Cient\xEDfico curioso        "
+    motivacion: 'Descubrir un nuevo planeta  '
+    extension: Corto
+    texto: "Leo, el cient\xEDfico, miraba cada noche por el gran telescopio de la
+      estaci\xF3n. Le encantaba contar estrellas. Una noche, vio un puntito azul
+      que no estaba en sus mapas. \xA1Era nuevo! Se mov\xEDa lentamente entre las
+      estrellas fijas. Con su tableta, calcul\xF3 su camino. \xA1Era un planeta!
+      Peque\xF1o y azul, como una canica en la oscuridad. Llam\xF3 a sus amigos para
+      mostrarles el descubrimiento. Todos celebraron con gelatina espacial. Leo llam\xF3
+      al planeta \"Aurora\", por el brillo que ten\xEDa. Ahora, cada noche, Leo saluda
+      a su nuevo amigo azul en el vasto cielo, feliz de haber a\xF1adido un mundo
+      a su familia estelar."
+  - genero: "Ciencia ficci\xF3n                                                                                "
+    escenario: "Estaci\xF3n espacial                          "
+    personaje: "Cient\xEDfico curioso        "
+    motivacion: 'Descubrir un nuevo planeta  '
+    extension: Mediano
+    texto: "\"En la Estaci\xF3n Espacial Alfa, la cient\xEDfica Luna pasaba sus turnos
+      libres escaneando el cosmos con el radiotelescopio. Sus compa\xF1eros dec\xEDan
+      que buscaba agujas en un pajar c\xF3smico, pero ella cre\xEDa que ah\xED fuera
+      hab\xEDa vida. Una tarde, entre el ruido de fondo del universo, capt\xF3 una
+      se\xF1al d\xE9bil y r\xEDtmica. No era natural; parec\xEDa un c\xF3digo. \xA1Era
+      un patr\xF3n de pulsos! El origen: un planeta en la zona habitable de una estrella
+      lejana, Kepler-186f.\nLuna trabaj\xF3 sin descanso, descifrando el mensaje.
+      No eran palabras, sino matem\xE1ticas: una sencilla serie de n\xFAmeros primos,
+      la huella digital de una inteligencia. Su emoci\xF3n fue contagiosa y pronto
+      toda la estaci\xF3n ayudaba. El ingeniero Kai mejor\xF3 los receptores y la
+      pilota Zoe calcul\xF3 la trayectoria exacta.\nFinalmente, Luna respondi\xF3
+      al saludo c\xF3smico, enviando la misma secuencia de primos hacia el planeta.
+      No recibieron una respuesta inmediata, pero eso no importaba. Hab\xEDan hecho
+      el primer contacto. Esa noche, Luna miraba fijamente a Kepler-186f desde la
+      c\xFApula de observaci\xF3n. Ya no era un punto m\xE1s en el mapa. Ahora sent\xEDa
+      que, en alg\xFAn lugar de all\xED, alguien tambi\xE9n miraba hacia las estrellas,
+      pregunt\xE1ndose si estaban solos. Hab\xEDan descubierto un planeta, pero,
+      m\xE1s importante, hab\xEDan encontrado un eco en la soledad del espacio.\""
+  - genero: "Ciencia ficci\xF3n                                                                                "
+    escenario: "Estaci\xF3n espacial                          "
+    personaje: "Cient\xEDfico curioso        "
+    motivacion: 'Descubrir un nuevo planeta  '
+    extension: Largo
+    texto: "\"El Dr. Aris Thorne era un veterano de la Estaci\xF3n Cient\xEDfica
+      Kepler, un hombre cuya paciencia era tan vasta como el espacio que estudiaba.
+      Su obsesi\xF3n era Gliese 581g, un exoplaneta rocoso con indicios de una atm\xF3sfera
+      estable. Mientras otros cient\xEDficos analizaban datos de atm\xF3sferas o
+      composiciones minerales, Aris escuchaba. Cre\xEDa que si exist\xEDa vida, incluso
+      microbial, el planeta tendr\xEDa una \"\"firma bioac\xFAstica\"\", un latido
+      ambiental imperceptible para la mayor\xEDa de los instrumentos.\nTras a\xF1os
+      de desarrollar un algoritmo de filtrado de ruido ultrasensible, finalmente
+      lo aplic\xF3 a los datos s\xEDsmicos indirectos de Gliese 581g. La computadora
+      arroj\xF3 una visualizaci\xF3n que le quit\xF3 el aliento: no era caos, sino
+      un patr\xF3n complejo y ondulante, como una sinfon\xEDa de baja frecuencia.
+      Era el sonido de vastos oc\xE9anos subterr\xE1neos chocando contra cavernas
+      de hielo, de vientos supers\xF3nicos modulados por extra\xF1as formaciones
+      geol\xF3gicas. Era la m\xFAsica del planeta.\nPero dentro de esa sinfon\xEDa,
+      encontr\xF3 una anomal\xEDa: una secuencia de pulsos resonantes que se repet\xEDa
+      cada 23 horas. Era demasiado perfecta para ser natural. La noticia dividi\xF3
+      a la estaci\xF3n. Algunos, como la pragm\xE1tica ingeniera jefe Anya, lo acusaron
+      de ver patrones donde no los hab\xEDa, de un deseo desesperado por encontrar
+      compa\xF1\xEDa c\xF3smica. Aris, sin embargo, se obsesion\xF3.\nUsando el sistema
+      de comunicaci\xF3n l\xE1ser de largo alcance, decidi\xF3 responder. No con
+      matem\xE1ticas, sino con la misma sinfon\xEDa que el planeta emit\xEDa, pero
+      reintroduciendo la anomal\xEDa r\xEDtmica, como diciendo \"\"he escuchado tu
+      canci\xF3n\"\". D\xEDas despu\xE9s, la sonda de monitoreo registr\xF3 un cambio.
+      La anomal\xEDa en la sinfon\xEDa de Gliese 581g hab\xEDa variado, incorporando
+      una nueva frecuencia que resonaba arm\xF3nicamente con la que Aris hab\xEDa
+      enviado.\nNo hubo mensajes claros, ni naves acerc\xE1ndose. Pero en ese momento,
+      Aris supo la verdad. No hab\xEDa descubierto un nuevo planeta para cartografiarlo
+      o colonizarlo. Hab\xEDa iniciado una conversaci\xF3n. Una lenta, majestuosa
+      y silenciosa conversaci\xF3n que podr\xEDa durar siglos. Hab\xEDa descubierto
+      que el universo no era mudo, sino que cantaba, y que ellos, por primera vez,
+      hab\xEDan aprendido a tararear la misma melod\xEDa.\""
