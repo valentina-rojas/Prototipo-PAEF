@@ -6,9 +6,10 @@ using System.Collections.Generic;
 public class ConfiguracionTexto : MonoBehaviour
 {
     [Header("Referencias principales")]
-    [SerializeField] private TMP_Text textoCuento; 
-    [SerializeField] private GameObject panelConfiguracion; 
-    [SerializeField] private Button botonConfiguracion; 
+    [SerializeField] private TMP_Text textoCuento;
+    [SerializeField] private GameObject panelConfiguracion;
+    [SerializeField] private Button botonConfiguracion;
+    [SerializeField] private GameManager gameManager; 
 
     [Header("Controles UI")]
     [SerializeField] private Slider sliderTamanoFuente;
@@ -24,14 +25,15 @@ public class ConfiguracionTexto : MonoBehaviour
     private void Start()
     {
         panelConfiguracion.SetActive(false);
-     
+
         botonConfiguracion.onClick.AddListener(TogglePanel);
 
         sliderTamanoFuente.onValueChanged.AddListener(CambiarTamanoFuente);
-        sliderEspaciadoLineas.onValueChanged.AddListener(v => 
+        sliderEspaciadoLineas.onValueChanged.AddListener(v =>
         {
             textoCuento.lineSpacing = v;
             ForzarActualizarLayout();
+            NotificarCambioTexto();
         });
         dropdownFuente.onValueChanged.AddListener(CambiarFuente);
         dropdownAlineacion.onValueChanged.AddListener(CambiarAlineacion);
@@ -79,6 +81,7 @@ public class ConfiguracionTexto : MonoBehaviour
     {
         textoCuento.fontSize = nuevoTamano;
         ForzarActualizarLayout();
+        NotificarCambioTexto();
     }
 
     private void CambiarFuente(int indice)
@@ -87,6 +90,7 @@ public class ConfiguracionTexto : MonoBehaviour
         {
             textoCuento.font = fuentesDisponibles[indice];
             ForzarActualizarLayout();
+            NotificarCambioTexto();
         }
     }
 
@@ -100,14 +104,23 @@ public class ConfiguracionTexto : MonoBehaviour
             case 3: textoCuento.alignment = TextAlignmentOptions.Justified; break;
         }
         ForzarActualizarLayout();
+        NotificarCambioTexto();
     }
 
-    // Este método fuerza que el Content del ScrollView se recalcule
     private void ForzarActualizarLayout()
     {
         if (textoCuento != null && textoCuento.transform.parent != null)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)textoCuento.transform.parent);
+        }
+    }
+
+    // Notifica al GameManager para que vuelva a dividir el texto según la nueva configuración
+    private void NotificarCambioTexto()
+    {
+        if (gameManager != null)
+        {
+            gameManager.RecalcularPaginas();
         }
     }
 }

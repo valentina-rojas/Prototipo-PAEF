@@ -19,9 +19,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button botonMisterio;
     [SerializeField] private Button botonAventura;
 
-    [Header("Texto del cuento y scroll")]
+    [Header("Texto del cuento y navegación")]
     [SerializeField] private TMP_Text textoCuento;
-    [SerializeField] private ScrollRect scrollRect;
+    [SerializeField] private Button botonSiguiente;
+    [SerializeField] private Button botonAnterior;
 
     [Header("Botones secundarios")]
     [SerializeField] private Button botonFinalizar;
@@ -38,9 +39,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float duracionFlecha = 2f;
 
     private bool botonMostrado = false;
-    private bool puedeVerificarScroll = false;
     private string generoActual;
     private int nivelActual = 1;
+
+    private List<string> paginas;
+    private int paginaActual = 0;
+    private string textoCompletoActual = "";
 
     [System.Serializable]
     public class Pregunta
@@ -71,6 +75,9 @@ public class GameManager : MonoBehaviour
 
         if (botonFinalizar != null)
             botonFinalizar.onClick.AddListener(FinalizarLectura);
+
+        botonSiguiente.onClick.AddListener(PaginaSiguiente);
+        botonAnterior.onClick.AddListener(PaginaAnterior);
 
         InicializarPreguntas();
     }
@@ -113,14 +120,11 @@ public class GameManager : MonoBehaviour
         panelCuento.SetActive(true);
         botonFinalizar.gameObject.SetActive(false);
         botonMostrado = false;
-        puedeVerificarScroll = false;
-
-        scrollRect.verticalNormalizedPosition = 1f;
 
         switch (genero)
         {
             case "ciencia ficcion":
-                textoCuento.text =
+                textoCompletoActual =
 @"En el año 3025, las nubes ya no eran de vapor, sino de datos. Flotaban en el cielo, conteniendo miles de archivos, recuerdos y canciones que la humanidad había enviado allí para protegerlos del olvido.
 
 Lina era una aprendiz de programadora en la estación espacial Órbita Azul. Le fascinaban los mensajes antiguos, esos que llegaban en forma de destellos de luz desde lo profundo del espacio. Una noche, mientras revisaba los radares, detectó un patrón extraño proveniente del cometa Eon-9: pulsos binarios, pausas y repeticiones… como si alguien tratara de hablar.
@@ -133,7 +137,7 @@ Lina quedó en silencio. Aquella nave había desaparecido hacía siglos. Grabó 
                 break;
 
             case "misterio":
-                textoCuento.text =
+                textoCompletoActual =
 @"La biblioteca de Villa Sombra tenía un rincón que olía a madera húmeda y papel antiguo. Nadie lo visitaba salvo Don Ernesto, su guardián de cabellos grises y mirada curiosa. Una noche, mientras revisaba los estantes, notó que un tomo de tapas azules estaba fuera de lugar. Lo colocó en su sitio, pero al día siguiente volvió a encontrarlo abierto, mostrando un párrafo distinto.
 
 Intrigado, empezó a observarlo cada noche. Las letras parecían moverse solas, reacomodándose en silencio, como si un escritor invisible corrigiera su propia historia. A medianoche, Ernesto decidió esconderse detrás de una estantería.
@@ -152,7 +156,7 @@ Ernesto sonrió con lágrimas en los ojos. Desde esa noche, cada lector que abre
                 break;
 
             case "aventura":
-                textoCuento.text =
+                textoCompletoActual =
 @"Naira tenía doce años y una curiosidad que no cabía en su mochila. Durante un verano aburrido en casa de su abuela, encontró una caja vieja bajo el piso del desván. Dentro había una brújula de cobre, oxidada y cubierta de polvo. Pero su aguja no apuntaba al norte: giraba despacio, como si respirara.
 
 Esa misma tarde la brújula comenzó a vibrar. Naira la sostuvo y la aguja se detuvo señalando hacia el bosque que rodeaba la aldea. Sin pensarlo dos veces, siguió la dirección. El sendero estaba cubierto de hojas, y a medida que avanzaba, el aire se volvía más cálido, más brillante.
@@ -165,28 +169,50 @@ Naira entendió que el bosque era una biblioteca viva, y que cada paso que daba 
 
 Desde entonces, cada vez que Naira abre un libro, siente que el bosque la observa… esperando a que vuelva a escribir su siguiente aventura.";
                 break;
+
+            default:
+                textoCompletoActual = "";
+                break;
         }
 
-        // Forzar layout para que ScrollRect actualice correctamente
-        Canvas.ForceUpdateCanvases();
-        StartCoroutine(ActivarVerificacionScroll());
+        paginas = DividirEnPaginas(textoCompletoActual);
+        paginaActual = 0;
+        MostrarPagina();
     }
 
-    private IEnumerator ActivarVerificacionScroll()
+    private void MostrarPagina()
     {
-        yield return null; // espera 1 frame
-        puedeVerificarScroll = true;
-    }
-
-    private void Update()
-    {
-        if (puedeVerificarScroll && !botonMostrado && panelCuento.activeSelf)
+        if (paginas == null || paginas.Count == 0)
         {
-            if (scrollRect.verticalNormalizedPosition <= 0.05f)
-            {
-                botonMostrado = true;
-                botonFinalizar.gameObject.SetActive(true);
-            }
+            textoCuento.text = "";
+            botonAnterior.interactable = false;
+            botonSiguiente.interactable = false;
+            botonFinalizar.gameObject.SetActive(false);
+            return;
+        }
+
+        textoCuento.text = paginas[paginaActual];
+
+        botonAnterior.interactable = paginaActual > 0;
+        botonSiguiente.interactable = paginaActual < paginas.Count - 1;
+        botonFinalizar.gameObject.SetActive(paginaActual == paginas.Count - 1);
+    }
+
+    private void PaginaSiguiente()
+    {
+        if (paginaActual < paginas.Count - 1)
+        {
+            paginaActual++;
+            MostrarPagina();
+        }
+    }
+
+    private void PaginaAnterior()
+    {
+        if (paginaActual > 0)
+        {
+            paginaActual--;
+            MostrarPagina();
         }
     }
 
@@ -259,5 +285,68 @@ Desde entonces, cada vez que Naira abre un libro, siente que el bosque la observ
         flechaNivel.SetActive(true);
         yield return new WaitForSeconds(duracionFlecha);
         flechaNivel.SetActive(false);
+    }
+
+    public void RecalcularPaginas()
+    {
+        if (string.IsNullOrEmpty(textoCompletoActual)) return;
+
+        int paginaAntes = paginaActual;
+        paginas = DividirEnPaginas(textoCompletoActual);
+        paginaActual = Mathf.Clamp(paginaAntes, 0, Mathf.Max(0, paginas.Count - 1));
+        MostrarPagina();
+    }
+
+    private List<string> DividirEnPaginas(string textoCompleto)
+    {
+        List<string> resultado = new List<string>();
+        if (string.IsNullOrEmpty(textoCompleto)) return resultado;
+
+        textoCuento.textWrappingMode = TextWrappingModes.Normal;
+
+        RectTransform rect = textoCuento.GetComponent<RectTransform>();
+        float alturaMaxima = rect.rect.height;
+        float anchoMaximo = rect.rect.width;
+
+        // margen de seguridad para evitar desbordes
+        float margenSeguridad = textoCuento.fontSize * 0.5f;
+
+        string[] palabras = textoCompleto.Split(' ');
+        string acumulado = "";
+
+        for (int i = 0; i < palabras.Length; i++)
+        {
+            string palabra = palabras[i];
+            string prueba = string.IsNullOrEmpty(acumulado) ? palabra : acumulado + " " + palabra;
+
+            Vector2 dims = textoCuento.GetPreferredValues(prueba, anchoMaximo, 0f);
+            float alturaPrueba = dims.y + margenSeguridad;
+
+            if (alturaPrueba > alturaMaxima)
+            {
+                if (string.IsNullOrEmpty(acumulado))
+                {
+                    resultado.Add(palabra);
+                    acumulado = "";
+                }
+                else
+                {
+                    resultado.Add(acumulado.TrimEnd());
+                    acumulado = palabra;
+                }
+            }
+            else
+            {
+                acumulado = prueba;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(acumulado))
+            resultado.Add(acumulado.TrimEnd());
+
+        if (resultado.Count == 0)
+            resultado.Add(textoCompleto);
+
+        return resultado;
     }
 }
