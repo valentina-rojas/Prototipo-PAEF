@@ -5967,6 +5967,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1450921341}
   m_CullTransparentMesh: 1
+--- !u!1 &1482380400
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1482380402}
+  - component: {fileID: 1482380401}
+  m_Layer: 0
+  m_Name: CuentosManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1482380401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1482380400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d5e1921d4aeaa3419640c57b1c04f41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textoCuento: {fileID: 129799798}
+  botonSiguiente: {fileID: 879620192}
+  botonAnterior: {fileID: 328794577}
+  botonFinalizar: {fileID: 1129541810}
+--- !u!4 &1482380402
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1482380400}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.8101704, y: 0.30376035, z: 0.052283067}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1484716250
 GameObject:
   m_ObjectHideFlags: 0
@@ -6075,7 +6123,7 @@ MonoBehaviour:
   textoCuento: {fileID: 129799798}
   panelConfiguracion: {fileID: 1533511309}
   botonConfiguracion: {fileID: 234387818}
-  gameManager: {fileID: 1738588016}
+  cuentosManager: {fileID: 1482380401}
   sliderTamanoFuente: {fileID: 1122654889}
   sliderEspaciadoLineas: {fileID: 1915998562}
   dropdownFuente: {fileID: 142052924}
@@ -6780,6 +6828,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1671835529}
   m_CullTransparentMesh: 1
+--- !u!1 &1700682938
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1700682940}
+  - component: {fileID: 1700682939}
+  m_Layer: 0
+  m_Name: CuestionarioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1700682939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700682938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc31aa799a2a732409ed8e9d1871362e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textoPregunta: {fileID: 366204035}
+  botonRespuesta1: {fileID: 614639350}
+  botonRespuesta2: {fileID: 360592029}
+  botonRespuesta3: {fileID: 383050346}
+--- !u!4 &1700682940
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700682938}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.8101704, y: 0.30376035, z: 0.052283067}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1709601464
 GameObject:
   m_ObjectHideFlags: 0
@@ -6945,6 +7041,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7265743c5bee4b42b18f80f757b36bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cuentosManager: {fileID: 1482380401}
+  cuestionarioManager: {fileID: 1700682939}
   botonAlimentar: {fileID: 108702528}
   panelGeneros: {fileID: 1581074301}
   panelCuento: {fileID: 1498401927}
@@ -6952,14 +7050,6 @@ MonoBehaviour:
   botonCienciaFiccion: {fileID: 1846413987}
   botonMisterio: {fileID: 503290675}
   botonAventura: {fileID: 643197607}
-  textoCuento: {fileID: 129799798}
-  botonSiguiente: {fileID: 879620192}
-  botonAnterior: {fileID: 328794577}
-  botonFinalizar: {fileID: 1129541810}
-  textoPregunta: {fileID: 366204035}
-  botonRespuesta1: {fileID: 614639350}
-  botonRespuesta2: {fileID: 360592029}
-  botonRespuesta3: {fileID: 383050346}
   textoNivel: {fileID: 2021843714}
   flechaNivel: {fileID: 101416818}
   duracionFlecha: 2
@@ -8793,4 +8883,6 @@ SceneRoots:
   - {fileID: 2018243131}
   - {fileID: 2028010808}
   - {fileID: 1738588017}
+  - {fileID: 1482380402}
+  - {fileID: 1700682940}
   - {fileID: 1490413519}

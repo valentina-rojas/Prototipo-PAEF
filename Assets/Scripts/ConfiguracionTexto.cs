@@ -3,13 +3,13 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 
-public class ConfiguracionTexto : MonoBehaviour
+public class ConfiguracionManager : MonoBehaviour
 {
     [Header("Referencias principales")]
     [SerializeField] private TMP_Text textoCuento;
     [SerializeField] private GameObject panelConfiguracion;
     [SerializeField] private Button botonConfiguracion;
-    [SerializeField] private GameManager gameManager; 
+    [SerializeField] private CuentosManager cuentosManager;
 
     [Header("Controles UI")]
     [SerializeField] private Slider sliderTamanoFuente;
@@ -25,7 +25,6 @@ public class ConfiguracionTexto : MonoBehaviour
     private void Start()
     {
         panelConfiguracion.SetActive(false);
-
         botonConfiguracion.onClick.AddListener(TogglePanel);
 
         sliderTamanoFuente.onValueChanged.AddListener(CambiarTamanoFuente);
@@ -33,8 +32,9 @@ public class ConfiguracionTexto : MonoBehaviour
         {
             textoCuento.lineSpacing = v;
             ForzarActualizarLayout();
-            NotificarCambioTexto();
+            cuentosManager.RecalcularPaginas();
         });
+
         dropdownFuente.onValueChanged.AddListener(CambiarFuente);
         dropdownAlineacion.onValueChanged.AddListener(CambiarAlineacion);
 
@@ -49,12 +49,6 @@ public class ConfiguracionTexto : MonoBehaviour
     {
         panelVisible = !panelVisible;
         panelConfiguracion.SetActive(panelVisible);
-
-        if (panelVisible)
-        {
-            sliderTamanoFuente.value = textoCuento.fontSize;
-            sliderEspaciadoLineas.value = textoCuento.lineSpacing;
-        }
     }
 
     private void InicializarOpcionesFuentes()
@@ -62,26 +56,21 @@ public class ConfiguracionTexto : MonoBehaviour
         dropdownFuente.ClearOptions();
         var nombres = new List<string>();
         foreach (var fuente in fuentesDisponibles)
-        {
             nombres.Add(fuente != null ? fuente.name : "Desconocida");
-        }
         dropdownFuente.AddOptions(nombres);
     }
 
     private void InicializarOpcionesAlineacion()
     {
         dropdownAlineacion.ClearOptions();
-        dropdownAlineacion.AddOptions(new List<string>
-        {
-            "Izquierda", "Centro", "Derecha", "Justificado"
-        });
+        dropdownAlineacion.AddOptions(new List<string> { "Izquierda", "Centro", "Derecha", "Justificado" });
     }
 
     private void CambiarTamanoFuente(float nuevoTamano)
     {
         textoCuento.fontSize = nuevoTamano;
         ForzarActualizarLayout();
-        NotificarCambioTexto();
+        cuentosManager.RecalcularPaginas();
     }
 
     private void CambiarFuente(int indice)
@@ -90,7 +79,7 @@ public class ConfiguracionTexto : MonoBehaviour
         {
             textoCuento.font = fuentesDisponibles[indice];
             ForzarActualizarLayout();
-            NotificarCambioTexto();
+            cuentosManager.RecalcularPaginas();
         }
     }
 
@@ -104,7 +93,7 @@ public class ConfiguracionTexto : MonoBehaviour
             case 3: textoCuento.alignment = TextAlignmentOptions.Justified; break;
         }
         ForzarActualizarLayout();
-        NotificarCambioTexto();
+        cuentosManager.RecalcularPaginas();
     }
 
     private void ForzarActualizarLayout()
@@ -112,15 +101,6 @@ public class ConfiguracionTexto : MonoBehaviour
         if (textoCuento != null && textoCuento.transform.parent != null)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)textoCuento.transform.parent);
-        }
-    }
-
-    // Notifica al GameManager para que vuelva a dividir el texto según la nueva configuración
-    private void NotificarCambioTexto()
-    {
-        if (gameManager != null)
-        {
-            gameManager.RecalcularPaginas();
         }
     }
 }
