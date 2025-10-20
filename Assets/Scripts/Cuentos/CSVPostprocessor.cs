@@ -97,7 +97,5 @@ public class CSVPostprocessor : AssetPostprocessor
 
         EditorUtility.SetDirty(baseDeCuentos);
         AssetDatabase.SaveAssets();
-        
-        Debug.Log($"Base de cuentos actualizada automáticamente con {cuentos.Length} cuentos en: {assetPath}");
     }
 }

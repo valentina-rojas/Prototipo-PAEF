@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Botones principales")]
     [SerializeField] private Button botonAlimentar;
+    [SerializeField] private Button botonVolver; 
 
     [Header("Paneles")]
     [SerializeField] private GameObject panelGeneros;
@@ -54,6 +55,9 @@ public class GameManager : MonoBehaviour
 
         textoNivel.text = nivelActual.ToString();
         botonAlimentar.onClick.AddListener(MostrarPanelGeneros);
+
+        if (botonVolver != null)
+            botonVolver.gameObject.SetActive(false);
     }
 
     private void MostrarPanelGeneros()
@@ -67,6 +71,8 @@ public class GameManager : MonoBehaviour
     private void MostrarOpcionesGenero()
     {
         faseActual = FaseSeleccion.Genero;
+        botonVolver.gameObject.SetActive(false); 
+
         var generos = basesCuentos.SelectMany(b => b.cuentos)
                                   .Select(c => c.genero)
                                   .Distinct()
@@ -81,6 +87,10 @@ public class GameManager : MonoBehaviour
     private void MostrarOpcionesEscenario()
     {
         faseActual = FaseSeleccion.Escenario;
+        botonVolver.gameObject.SetActive(true);
+        botonVolver.onClick.RemoveAllListeners();
+        botonVolver.onClick.AddListener(() => MostrarOpcionesGenero());
+
         var escenarios = basesCuentos.SelectMany(b => b.cuentos)
                                      .Where(c => c.genero == generoSeleccionado)
                                      .Select(c => c.escenario)
@@ -96,6 +106,10 @@ public class GameManager : MonoBehaviour
     private void MostrarOpcionesPersonaje()
     {
         faseActual = FaseSeleccion.Personaje;
+        botonVolver.gameObject.SetActive(true);
+        botonVolver.onClick.RemoveAllListeners();
+        botonVolver.onClick.AddListener(() => MostrarOpcionesEscenario());
+
         var personajes = basesCuentos.SelectMany(b => b.cuentos)
                                      .Where(c => c.genero == generoSeleccionado && c.escenario == escenarioSeleccionado)
                                      .Select(c => c.personaje)
@@ -111,6 +125,10 @@ public class GameManager : MonoBehaviour
     private void MostrarOpcionesMotivacion()
     {
         faseActual = FaseSeleccion.Motivacion;
+        botonVolver.gameObject.SetActive(true);
+        botonVolver.onClick.RemoveAllListeners();
+        botonVolver.onClick.AddListener(() => MostrarOpcionesPersonaje());
+
         var motivaciones = basesCuentos.SelectMany(b => b.cuentos)
                                        .Where(c => c.genero == generoSeleccionado && c.escenario == escenarioSeleccionado && c.personaje == personajeSeleccionado)
                                        .Select(c => c.motivacion)
@@ -126,6 +144,10 @@ public class GameManager : MonoBehaviour
     private void MostrarOpcionesExtension()
     {
         faseActual = FaseSeleccion.Extension;
+        botonVolver.gameObject.SetActive(true);
+        botonVolver.onClick.RemoveAllListeners();
+        botonVolver.onClick.AddListener(() => MostrarOpcionesMotivacion());
+
         var extensiones = new List<string> { "Corto", "Mediano", "Largo" };
         ConfigurarBotones(extensiones, opcion =>
         {
@@ -157,6 +179,7 @@ public class GameManager : MonoBehaviour
     {
         panelGeneros.SetActive(false);
         panelCuento.SetActive(true);
+        botonVolver.gameObject.SetActive(false); 
 
         var cuentoFinal = basesCuentos.SelectMany(b => b.cuentos)
             .FirstOrDefault(c =>

@@ -38,27 +38,22 @@ public class CSVToCuentoImporter : EditorWindow
 
         if (linesQueue.Count < 2)
         {
-            Debug.LogError("El archivo CSV no tiene suficientes líneas");
+            EditorUtility.DisplayDialog("Error", "El archivo CSV no tiene suficientes líneas", "OK");
             return;
         }
 
         linesQueue.Dequeue();
 
         List<Cuento> cuentosList = new List<Cuento>();
-        int lineNumber = 1;
 
         while (linesQueue.Count > 0)
         {
             string[] values = ParseCSVLineRobust(ref linesQueue);
-            lineNumber++;
 
             if (values == null || values.Length < 6) continue;
 
             if (string.IsNullOrEmpty(values[0]) || string.IsNullOrEmpty(values[5]) || values[5].Length < 10)
-            {
-                Debug.LogWarning($" Línea {lineNumber} ignorada - Datos insuficientes.");
                 continue;
-            }
 
             Cuento cuento = new Cuento
             {
@@ -161,7 +156,5 @@ public class CSVToCuentoImporter : EditorWindow
 
         EditorUtility.DisplayDialog("Éxito", $"Base de cuentos creada con {cuentos.Length} cuentos válidos\nUbicación: {assetPath}", "OK");
         Selection.activeObject = baseDeCuentos;
-
-        Debug.Log($"Base de cuentos creada con {cuentos.Length} cuentos.");
     }
 }
