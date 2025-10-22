@@ -1,28 +1,89 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections;
-using System.Collections.Generic;
 
 public class CuestionarioManager : MonoBehaviour
 {
+    [Header("UI")]
     [SerializeField] private TMP_Text textoPregunta;
-    [SerializeField] private Button botonRespuesta1;
-    [SerializeField] private Button botonRespuesta2;
-    [SerializeField] private Button botonRespuesta3;
+    [SerializeField] private Button[] botonesOpciones;
+    [SerializeField] private Button botonFinalizar;
+    [SerializeField] private Button botonVolverMenu;
+    [SerializeField] private GameObject panelCuestionario;
 
-    private Dictionary<string, Pregunta> preguntasPorGenero = new Dictionary<string, Pregunta>();
+    private Pregunta[] preguntas;
+    private int indiceActual;
+    private int puntaje;
     private GameManager gameManager;
 
     private void Start()
     {
+        if (botonVolverMenu != null)
+        {
+            botonVolverMenu.gameObject.SetActive(false);
+            botonVolverMenu.onClick.AddListener(() =>
+            {
+                panelCuestionario.SetActive(false);     
+                gameManager.botonAlimentar.interactable = true; 
+            });
+        }
     }
 
-    [System.Serializable]
-    public class Pregunta
+    public void MostrarCuestionario(Pregunta[] cuestionario, GameManager manager)
     {
-        public string textoPregunta;
-        public string[] respuestas;
-        public int respuestaCorrecta;
+        preguntas = cuestionario;
+        gameManager = manager;
+        indiceActual = 0;
+        puntaje = 0;
+
+        botonFinalizar.gameObject.SetActive(false);
+        if (botonVolverMenu != null)
+            botonVolverMenu.gameObject.SetActive(false);
+
+        MostrarPregunta();
+    }
+
+    private void MostrarPregunta()
+    {
+        if (indiceActual >= preguntas.Length)
+        {
+            textoPregunta.text = $"Has completado el cuestionario!\nPuntaje: {puntaje}/{preguntas.Length}";
+            foreach (var btn in botonesOpciones)
+                btn.gameObject.SetActive(false);
+
+            botonFinalizar.gameObject.SetActive(false); 
+            if (botonVolverMenu != null)
+                botonVolverMenu.gameObject.SetActive(true); 
+
+            return;
+        }
+
+        Pregunta p = preguntas[indiceActual];
+        textoPregunta.text = p.texto;
+
+        for (int i = 0; i < botonesOpciones.Length; i++)
+        {
+            if (i < p.opciones.Length)
+            {
+                botonesOpciones[i].gameObject.SetActive(true);
+                botonesOpciones[i].GetComponentInChildren<TMP_Text>().text = p.opciones[i];
+                botonesOpciones[i].onClick.RemoveAllListeners();
+                int opcion = i;
+                botonesOpciones[i].onClick.AddListener(() => EvaluarRespuesta(opcion));
+            }
+            else
+            {
+                botonesOpciones[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    private void EvaluarRespuesta(int seleccion)
+    {
+        if (seleccion == preguntas[indiceActual].respuestaCorrecta)
+            puntaje++;
+
+        indiceActual++;
+        MostrarPregunta();
     }
 }

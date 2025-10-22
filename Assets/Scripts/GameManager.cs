@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private BaseDeCuentos[] basesCuentos;
 
     [Header("Botones principales")]
-    [SerializeField] private Button botonAlimentar;
+    [SerializeField] public Button botonAlimentar;
     [SerializeField] private Button botonVolver; 
 
     [Header("Paneles")]
@@ -198,6 +198,25 @@ public class GameManager : MonoBehaviour
     public void FinalizarLectura(string genero)
     {
         panelCuento.SetActive(false);
-        botonAlimentar.interactable = true;
+
+     
+        var cuentoFinal = basesCuentos.SelectMany(b => b.cuentos)
+            .FirstOrDefault(c =>
+                c.genero == generoSeleccionado &&
+                c.escenario == escenarioSeleccionado &&
+                c.personaje == personajeSeleccionado &&
+                c.motivacion == motivacionSeleccionada &&
+                c.extension == extensionSeleccionada
+            );
+
+        if (cuentoFinal != null && cuentoFinal.cuestionario != null && cuentoFinal.cuestionario.Length > 0)
+        {
+            panelCuestionario.SetActive(true);
+            cuestionarioManager.MostrarCuestionario(cuentoFinal.cuestionario, this);
+        }
+        else
+        {
+            botonAlimentar.interactable = true;
+        }
     }
 }

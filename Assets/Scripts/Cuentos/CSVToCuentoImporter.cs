@@ -42,7 +42,7 @@ public class CSVToCuentoImporter : EditorWindow
             return;
         }
 
-        linesQueue.Dequeue();
+        linesQueue.Dequeue(); 
 
         List<Cuento> cuentosList = new List<Cuento>();
 
@@ -51,21 +51,10 @@ public class CSVToCuentoImporter : EditorWindow
             string[] values = ParseCSVLineRobust(ref linesQueue);
 
             if (values == null || values.Length < 6) continue;
-
             if (string.IsNullOrEmpty(values[0]) || string.IsNullOrEmpty(values[5]) || values[5].Length < 10)
                 continue;
 
-            Cuento cuento = new Cuento
-            {
-                genero = CleanField(values[0]),
-                escenario = CleanField(values[1]),
-                personaje = CleanField(values[2]),
-                motivacion = CleanField(values[3]),
-                extension = CleanField(values[4]),
-                texto = CleanField(values[5])
-            };
-
-            cuentosList.Add(cuento);
+            cuentosList.Add(ParseCuentoFromValues(values));
         }
 
         if (cuentosList.Count > 0)
@@ -113,7 +102,7 @@ public class CSVToCuentoImporter : EditorWindow
                         inQuotes = !inQuotes;
                     }
                 }
-                else if (c == '\t' && !inQuotes)
+                else if ((c == '\t' || c == ',') && !inQuotes)
                 {
                     fields.Add(currentField.ToString());
                     currentField.Clear();
@@ -132,9 +121,44 @@ public class CSVToCuentoImporter : EditorWindow
 
         fields.Add(currentField.ToString());
 
-        while (fields.Count < 6) fields.Add("");
-
         return fields.ToArray();
+    }
+
+    private Cuento ParseCuentoFromValues(string[] values)
+    {
+        Cuento cuento = new Cuento
+        {
+            genero = CleanField(values[0]),
+            escenario = CleanField(values[1]),
+            personaje = CleanField(values[2]),
+            motivacion = CleanField(values[3]),
+            extension = CleanField(values[4]),
+            texto = CleanField(values[5]),
+            cuestionario = null
+        };
+
+        if (values.Length >= 9 && !string.IsNullOrEmpty(values[6]))
+        {
+            string preguntaTexto = CleanField(values[6]);
+            string opcionesRaw = CleanField(values[7]);
+            string respuestaRaw = CleanField(values[8]);
+
+            string[] opciones = opcionesRaw.Split(';');
+            int respuestaCorrecta = 0;
+            int.TryParse(respuestaRaw.Replace("Opción", "").Trim(), out respuestaCorrecta);
+            respuestaCorrecta = Mathf.Clamp(respuestaCorrecta - 1, 0, opciones.Length - 1);
+
+            Pregunta pregunta = new Pregunta
+            {
+                texto = preguntaTexto,
+                opciones = opciones,
+                respuestaCorrecta = respuestaCorrecta
+            };
+
+            cuento.cuestionario = new Pregunta[] { pregunta };
+        }
+
+        return cuento;
     }
 
     private void CreateBaseDeCuentos(Cuento[] cuentos)

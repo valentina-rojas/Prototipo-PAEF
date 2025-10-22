@@ -1,6 +1,14 @@
 using UnityEngine;
 
 [System.Serializable]
+public class Pregunta
+{
+    public string texto;
+    public string[] opciones;
+    public int respuestaCorrecta;
+}
+
+[System.Serializable]
 public class Cuento
 {
     public string genero;
@@ -10,6 +18,7 @@ public class Cuento
     public string extension;
     [TextArea(5, 20)]
     public string texto;
+    public Pregunta[] cuestionario;
 }
 
 [CreateAssetMenu(fileName = "BaseDeCuentos", menuName = "Cuentos/Base de Cuentos")]
