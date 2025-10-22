@@ -7,7 +7,6 @@ public class CuestionarioManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private TMP_Text textoPregunta;
     [SerializeField] private Button[] botonesOpciones;
-    [SerializeField] private Button botonFinalizar;
     [SerializeField] private Button botonVolverMenu;
     [SerializeField] private GameObject panelCuestionario;
 
@@ -23,8 +22,8 @@ public class CuestionarioManager : MonoBehaviour
             botonVolverMenu.gameObject.SetActive(false);
             botonVolverMenu.onClick.AddListener(() =>
             {
-                panelCuestionario.SetActive(false);     
-                gameManager.botonAlimentar.interactable = true; 
+                panelCuestionario.SetActive(false);
+                gameManager.botonAlimentar.interactable = true;
             });
         }
     }
@@ -36,7 +35,6 @@ public class CuestionarioManager : MonoBehaviour
         indiceActual = 0;
         puntaje = 0;
 
-        botonFinalizar.gameObject.SetActive(false);
         if (botonVolverMenu != null)
             botonVolverMenu.gameObject.SetActive(false);
 
@@ -51,9 +49,8 @@ public class CuestionarioManager : MonoBehaviour
             foreach (var btn in botonesOpciones)
                 btn.gameObject.SetActive(false);
 
-            botonFinalizar.gameObject.SetActive(false); 
             if (botonVolverMenu != null)
-                botonVolverMenu.gameObject.SetActive(true); 
+                botonVolverMenu.gameObject.SetActive(true);
 
             return;
         }
@@ -81,9 +78,13 @@ public class CuestionarioManager : MonoBehaviour
     private void EvaluarRespuesta(int seleccion)
     {
         if (seleccion == preguntas[indiceActual].respuestaCorrecta)
+        {
             puntaje++;
+            gameManager.GanarExperiencia(1); 
+        }
 
         indiceActual++;
         MostrarPregunta();
     }
 }
+

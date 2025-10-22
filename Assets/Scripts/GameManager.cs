@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,11 +11,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CuestionarioManager cuestionarioManager;
     [SerializeField] private BaseDeCuentos[] basesCuentos;
 
-    [Header("Botones principales")]
+    [Header("UI principales")]
     [SerializeField] public Button botonAlimentar;
-    [SerializeField] private Button botonVolver; 
-
-    [Header("Paneles")]
+    [SerializeField] private Button botonVolver;
     [SerializeField] private GameObject panelGeneros;
     [SerializeField] private GameObject panelCuento;
     [SerializeField] private GameObject panelCuestionario;
@@ -26,11 +23,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button boton2;
     [SerializeField] private Button boton3;
 
-    [Header("Nivel")]
-    [SerializeField] private TMP_Text textoNivel;
-    [SerializeField] private GameObject flechaNivel;
-    [SerializeField] private float duracionFlecha = 2f;
+    [Header("Experiencia y barra")]
+    [SerializeField] private Slider barraExperiencia;
+    [SerializeField] private TMP_Text textoExperiencia;
+    [SerializeField] private int experienciaPorNivel = 5; 
 
+    [Header("Mascota y evolución")]
+    [SerializeField] private Image mascotaImage; 
+    [SerializeField] private Sprite[] spritesEvolucion; 
+
+    private int experienciaActual = 0;
     private int nivelActual = 1;
 
     private enum FaseSeleccion { Genero, Escenario, Personaje, Motivacion, Extension }
@@ -46,20 +48,30 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        if (basesCuentos == null || basesCuentos.Length == 0)
+        {
+            var basePrincipal = Resources.Load<BaseDeCuentos>("BaseDeCuentos/BaseDeCuentos_Main");
+            if (basePrincipal != null) basesCuentos = new[] { basePrincipal };
+            else basesCuentos = new BaseDeCuentos[0];
+        }
+
         panelGeneros.SetActive(false);
         panelCuento.SetActive(false);
         panelCuestionario.SetActive(false);
 
-        if (flechaNivel != null)
-            flechaNivel.SetActive(false);
+        if (barraExperiencia != null)
+        {
+            barraExperiencia.maxValue = experienciaPorNivel;
+            barraExperiencia.value = experienciaActual;
+        }
+        ActualizarTextoExperiencia();
+        ActualizarMascota();
 
-        textoNivel.text = nivelActual.ToString();
         botonAlimentar.onClick.AddListener(MostrarPanelGeneros);
-
-        if (botonVolver != null)
-            botonVolver.gameObject.SetActive(false);
+        if (botonVolver != null) botonVolver.gameObject.SetActive(false);
     }
 
+    #region Selección de cuento
     private void MostrarPanelGeneros()
     {
         botonAlimentar.interactable = false;
@@ -67,16 +79,22 @@ public class GameManager : MonoBehaviour
         MostrarOpcionesGenero();
     }
 
-    #region Flujo jerárquico
     private void MostrarOpcionesGenero()
     {
         faseActual = FaseSeleccion.Genero;
-        botonVolver.gameObject.SetActive(false); 
+        botonVolver.gameObject.SetActive(false);
 
-        var generos = basesCuentos.SelectMany(b => b.cuentos)
-                                  .Select(c => c.genero)
-                                  .Distinct()
-                                  .ToList();
+        if (basesCuentos == null || basesCuentos.Length == 0) return;
+
+        var generos = basesCuentos
+            .Where(b => b != null && b.cuentos != null)
+            .SelectMany(b => b.cuentos)
+            .Where(c => c != null)
+            .Select(c => c.genero)
+            .Where(s => !string.IsNullOrEmpty(s))
+            .Distinct()
+            .ToList();
+
         ConfigurarBotones(generos, opcion =>
         {
             generoSeleccionado = opcion;
@@ -91,11 +109,15 @@ public class GameManager : MonoBehaviour
         botonVolver.onClick.RemoveAllListeners();
         botonVolver.onClick.AddListener(() => MostrarOpcionesGenero());
 
-        var escenarios = basesCuentos.SelectMany(b => b.cuentos)
-                                     .Where(c => c.genero == generoSeleccionado)
-                                     .Select(c => c.escenario)
-                                     .Distinct()
-                                     .ToList();
+        var escenarios = basesCuentos
+            .Where(b => b != null && b.cuentos != null)
+            .SelectMany(b => b.cuentos)
+            .Where(c => c != null && c.genero == generoSeleccionado)
+            .Select(c => c.escenario)
+            .Where(s => !string.IsNullOrEmpty(s))
+            .Distinct()
+            .ToList();
+
         ConfigurarBotones(escenarios, opcion =>
         {
             escenarioSeleccionado = opcion;
@@ -110,11 +132,15 @@ public class GameManager : MonoBehaviour
         botonVolver.onClick.RemoveAllListeners();
         botonVolver.onClick.AddListener(() => MostrarOpcionesEscenario());
 
-        var personajes = basesCuentos.SelectMany(b => b.cuentos)
-                                     .Where(c => c.genero == generoSeleccionado && c.escenario == escenarioSeleccionado)
-                                     .Select(c => c.personaje)
-                                     .Distinct()
-                                     .ToList();
+        var personajes = basesCuentos
+            .Where(b => b != null && b.cuentos != null)
+            .SelectMany(b => b.cuentos)
+            .Where(c => c != null && c.genero == generoSeleccionado && c.escenario == escenarioSeleccionado)
+            .Select(c => c.personaje)
+            .Where(s => !string.IsNullOrEmpty(s))
+            .Distinct()
+            .ToList();
+
         ConfigurarBotones(personajes, opcion =>
         {
             personajeSeleccionado = opcion;
@@ -129,11 +155,15 @@ public class GameManager : MonoBehaviour
         botonVolver.onClick.RemoveAllListeners();
         botonVolver.onClick.AddListener(() => MostrarOpcionesPersonaje());
 
-        var motivaciones = basesCuentos.SelectMany(b => b.cuentos)
-                                       .Where(c => c.genero == generoSeleccionado && c.escenario == escenarioSeleccionado && c.personaje == personajeSeleccionado)
-                                       .Select(c => c.motivacion)
-                                       .Distinct()
-                                       .ToList();
+        var motivaciones = basesCuentos
+            .Where(b => b != null && b.cuentos != null)
+            .SelectMany(b => b.cuentos)
+            .Where(c => c != null && c.genero == generoSeleccionado && c.escenario == escenarioSeleccionado && c.personaje == personajeSeleccionado)
+            .Select(c => c.motivacion)
+            .Where(s => !string.IsNullOrEmpty(s))
+            .Distinct()
+            .ToList();
+
         ConfigurarBotones(motivaciones, opcion =>
         {
             motivacionSeleccionada = opcion;
@@ -163,7 +193,8 @@ public class GameManager : MonoBehaviour
             if (i < opciones.Count)
             {
                 botones[i].gameObject.SetActive(true);
-                botones[i].GetComponentInChildren<TMP_Text>().text = opciones[i];
+                var texto = botones[i].GetComponentInChildren<TMP_Text>();
+                if (texto != null) texto.text = opciones[i];
                 botones[i].onClick.RemoveAllListeners();
                 string opcion = opciones[i];
                 botones[i].onClick.AddListener(() => callback(opcion));
@@ -179,10 +210,13 @@ public class GameManager : MonoBehaviour
     {
         panelGeneros.SetActive(false);
         panelCuento.SetActive(true);
-        botonVolver.gameObject.SetActive(false); 
+        botonVolver.gameObject.SetActive(false);
 
-        var cuentoFinal = basesCuentos.SelectMany(b => b.cuentos)
+        var cuentoFinal = basesCuentos
+            .Where(b => b != null && b.cuentos != null)
+            .SelectMany(b => b.cuentos)
             .FirstOrDefault(c =>
+                c != null &&
                 c.genero == generoSeleccionado &&
                 c.escenario == escenarioSeleccionado &&
                 c.personaje == personajeSeleccionado &&
@@ -191,7 +225,9 @@ public class GameManager : MonoBehaviour
             );
 
         if (cuentoFinal != null)
+        {
             cuentosManager.MostrarCuento(cuentoFinal.texto, this);
+        }
     }
     #endregion
 
@@ -199,9 +235,11 @@ public class GameManager : MonoBehaviour
     {
         panelCuento.SetActive(false);
 
-     
-        var cuentoFinal = basesCuentos.SelectMany(b => b.cuentos)
+        var cuentoFinal = basesCuentos
+            .Where(b => b != null && b.cuentos != null)
+            .SelectMany(b => b.cuentos)
             .FirstOrDefault(c =>
+                c != null &&
                 c.genero == generoSeleccionado &&
                 c.escenario == escenarioSeleccionado &&
                 c.personaje == personajeSeleccionado &&
@@ -217,6 +255,40 @@ public class GameManager : MonoBehaviour
         else
         {
             botonAlimentar.interactable = true;
+        }
+    }
+
+    public void GanarExperiencia(int cantidad)
+    {
+        experienciaActual += cantidad;
+
+        if (experienciaActual >= experienciaPorNivel)
+        {
+            experienciaActual -= experienciaPorNivel;
+            nivelActual++;
+            Debug.Log($"🎉 ¡Mascota subió a nivel {nivelActual}!");
+            ActualizarMascota();
+        }
+
+        if (barraExperiencia != null)
+            barraExperiencia.value = experienciaActual;
+
+        ActualizarTextoExperiencia();
+    }
+
+    private void ActualizarTextoExperiencia()
+    {
+        if (textoExperiencia != null)
+            textoExperiencia.text = $"Nivel {nivelActual} - EXP {experienciaActual}/{experienciaPorNivel}";
+    }
+
+    private void ActualizarMascota()
+    {
+        if (mascotaImage != null && spritesEvolucion != null && spritesEvolucion.Length > 0)
+        {
+            int spriteIndex = Mathf.Min(nivelActual - 1, spritesEvolucion.Length - 1);
+            mascotaImage.sprite = spritesEvolucion[spriteIndex];
+            mascotaImage.SetNativeSize();
         }
     }
 }
