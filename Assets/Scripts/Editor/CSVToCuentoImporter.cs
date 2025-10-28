@@ -4,6 +4,8 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Linq;
+
 
 public class CSVToCuentoImporter : EditorWindow
 {
@@ -124,8 +126,9 @@ public class CSVToCuentoImporter : EditorWindow
         return fields.ToArray();
     }
 
-    private Cuento ParseCuentoFromValues(string[] values)
+   private Cuento ParseCuentoFromValues(string[] values)
     {
+
         Cuento cuento = new Cuento
         {
             genero = CleanField(values[0]),
@@ -134,11 +137,14 @@ public class CSVToCuentoImporter : EditorWindow
             motivacion = CleanField(values[3]),
             extension = CleanField(values[4]),
             texto = CleanField(values[5]),
-            cuestionario = null
+            cuestionario = null,
+            fraseIncompleta = null
         };
 
+        // --- Cuestionario (ya existente) ---
         if (values.Length >= 9 && !string.IsNullOrEmpty(values[6]))
         {
+
             string preguntaTexto = CleanField(values[6]);
             string opcionesRaw = CleanField(values[7]);
             string respuestaRaw = CleanField(values[8]);
@@ -148,18 +154,45 @@ public class CSVToCuentoImporter : EditorWindow
             int.TryParse(respuestaRaw.Replace("Opción", "").Trim(), out respuestaCorrecta);
             respuestaCorrecta = Mathf.Clamp(respuestaCorrecta - 1, 0, opciones.Length - 1);
 
-            Pregunta pregunta = new Pregunta
+            cuento.cuestionario = new Pregunta[]
             {
-                texto = preguntaTexto,
-                opciones = opciones,
-                respuestaCorrecta = respuestaCorrecta
+                new Pregunta
+                {
+                    texto = preguntaTexto,
+                    opciones = opciones,
+                    respuestaCorrecta = respuestaCorrecta
+                }
             };
-
-            cuento.cuestionario = new Pregunta[] { pregunta };
         }
+
+        
+
+
+        // --- NUEVO: Frase incompleta ---
+       if (values.Length >= 12 && !string.IsNullOrEmpty(values[9]))
+        {
+
+            string frase = CleanField(values[9]);
+            string opcionesRaw = CleanField(values[10]);
+            string respuesta = CleanField(values[11]);
+
+            cuento.fraseIncompleta = new FraseIncompleta[]
+                {
+                    new FraseIncompleta
+                    {
+                        frase = frase,
+                        opciones = opcionesRaw.Split(';').Select(o => o.Trim()).ToArray(),
+                        respuestaCorrecta = respuesta
+                    }
+                };
+
+
+        }
+
 
         return cuento;
     }
+
 
     private void CreateBaseDeCuentos(Cuento[] cuentos)
     {

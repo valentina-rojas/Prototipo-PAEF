@@ -9,6 +9,16 @@ public class Pregunta
 }
 
 [System.Serializable]
+public class FraseIncompleta
+{
+    [TextArea]
+    public string frase;          // Ej: "El mago vivía en un ___"
+    public string[] opciones;     // Ej: ["bosque", "castillo", "cueva"]
+    public string respuestaCorrecta; // Ej: "castillo"
+}
+
+
+[System.Serializable]
 public class Cuento
 {
     public string genero;
@@ -19,6 +29,7 @@ public class Cuento
     [TextArea(5, 20)]
     public string texto;
     public Pregunta[] cuestionario;
+    public FraseIncompleta[] fraseIncompleta;
 }
 
 [CreateAssetMenu(fileName = "BaseDeCuentos", menuName = "Cuentos/Base de Cuentos")]

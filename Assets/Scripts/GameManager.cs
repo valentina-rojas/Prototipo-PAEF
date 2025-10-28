@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     [Header("Referencias principales")]
     [SerializeField] private CuentosManager cuentosManager;
     [SerializeField] private CuestionarioManager cuestionarioManager;
+    [SerializeField] private CompletarFrasesManager completarFrasesManager;
     [SerializeField] private BaseDeCuentos[] basesCuentos;
 
     [Header("UI principales")]
@@ -17,6 +18,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject panelGeneros;
     [SerializeField] private GameObject panelCuento;
     [SerializeField] private GameObject panelCuestionario;
+    [SerializeField] private GameObject panelCompletarFrase;
 
     [Header("Botones de selección")]
     [SerializeField] private Button boton1;
@@ -46,18 +48,20 @@ public class GameManager : MonoBehaviour
 
     private List<Button> botones => new List<Button> { boton1, boton2, boton3 };
 
+
+    [SerializeField] private BaseDeCuentos baseDeCuentosPrincipal;
+
+
     private void Start()
     {
-        if (basesCuentos == null || basesCuentos.Length == 0)
-        {
-            var basePrincipal = Resources.Load<BaseDeCuentos>("BaseDeCuentos/BaseDeCuentos_Main");
-            if (basePrincipal != null) basesCuentos = new[] { basePrincipal };
-            else basesCuentos = new BaseDeCuentos[0];
-        }
+   
+        basesCuentos = new BaseDeCuentos[] { baseDeCuentosPrincipal };
 
         panelGeneros.SetActive(false);
         panelCuento.SetActive(false);
         panelCuestionario.SetActive(false);
+        panelCompletarFrase.SetActive(false);
+
 
         if (barraExperiencia != null)
         {
@@ -247,16 +251,61 @@ public class GameManager : MonoBehaviour
                 c.extension == extensionSeleccionada
             );
 
-        if (cuentoFinal != null && cuentoFinal.cuestionario != null && cuentoFinal.cuestionario.Length > 0)
-        {
-            panelCuestionario.SetActive(true);
-            cuestionarioManager.MostrarCuestionario(cuentoFinal.cuestionario, this);
-        }
-        else
+        if (cuentoFinal == null)
         {
             botonAlimentar.interactable = true;
+            return;
         }
+
+    if (cuentoFinal == null)
+    {
+        Debug.LogWarning("CuentoFinal es null");
     }
+    else
+    {
+        Debug.Log($"Cuento encontrado: {cuentoFinal.texto}");
+        Debug.Log("Frases disponibles en este cuento: " + (cuentoFinal.fraseIncompleta?.Length ?? 0));
+    }
+
+
+    // Determinar aleatoriamente qué tipo de evaluación mostrar
+    bool tieneCuestionario = cuentoFinal.cuestionario != null && cuentoFinal.cuestionario.Length > 0;
+    bool tieneFrase = cuentoFinal.fraseIncompleta != null && cuentoFinal.fraseIncompleta.Length > 0;
+
+    if (!tieneCuestionario && !tieneFrase)
+    {
+        // No hay evaluación, volver al inicio
+        panelCuestionario.SetActive(false);
+        panelCompletarFrase.SetActive(false);
+        botonAlimentar.interactable = true;
+        return;
+    }
+
+    bool usarCuestionario = Random.value < 0.5f; // 50% de probabilidad
+
+    if (usarCuestionario && tieneCuestionario)
+    {
+        panelCuestionario.SetActive(true);
+        panelCompletarFrase.SetActive(false);
+        cuestionarioManager.MostrarCuestionario(cuentoFinal.cuestionario, this);
+    }
+    else if (tieneFrase)
+    {
+        panelCuestionario.SetActive(false);
+        panelCompletarFrase.SetActive(true);
+        var fraseElegida = cuentoFinal.fraseIncompleta[Random.Range(0, cuentoFinal.fraseIncompleta.Length)];
+        completarFrasesManager.MostrarFrase(fraseElegida);
+    }
+    else
+    {
+        // Si aleatoriamente salió cuestionario pero no tiene, mostrar frase
+        panelCuestionario.SetActive(false);
+        panelCompletarFrase.SetActive(false);
+        botonAlimentar.interactable = true;
+    }
+
+    }
+
 
     public void GanarExperiencia(int cantidad)
     {
