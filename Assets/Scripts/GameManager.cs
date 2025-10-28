@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CuentosManager cuentosManager;
     [SerializeField] private CuestionarioManager cuestionarioManager;
     [SerializeField] private CompletarFrasesManager completarFrasesManager;
+    [SerializeField] private OrdenarFrasesManager OrdenarFrasesManager;
     [SerializeField] private BaseDeCuentos[] basesCuentos;
 
     [Header("UI principales")]
@@ -19,6 +20,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject panelCuento;
     [SerializeField] private GameObject panelCuestionario;
     [SerializeField] private GameObject panelCompletarFrase;
+    [SerializeField] private GameObject panelOrdenarFrase;
 
     [Header("Botones de selección")]
     [SerializeField] private Button boton1;
@@ -257,53 +259,48 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-    if (cuentoFinal == null)
-    {
-        Debug.LogWarning("CuentoFinal es null");
-    }
-    else
-    {
-        Debug.Log($"Cuento encontrado: {cuentoFinal.texto}");
-        Debug.Log("Frases disponibles en este cuento: " + (cuentoFinal.fraseIncompleta?.Length ?? 0));
-    }
-
-
-    // Determinar aleatoriamente qué tipo de evaluación mostrar
-    bool tieneCuestionario = cuentoFinal.cuestionario != null && cuentoFinal.cuestionario.Length > 0;
-    bool tieneFrase = cuentoFinal.fraseIncompleta != null && cuentoFinal.fraseIncompleta.Length > 0;
-
-    if (!tieneCuestionario && !tieneFrase)
-    {
-        // No hay evaluación, volver al inicio
+    
+        // Ocultar todos los paneles
         panelCuestionario.SetActive(false);
         panelCompletarFrase.SetActive(false);
-        botonAlimentar.interactable = true;
-        return;
-    }
+        panelOrdenarFrase.SetActive(false);
 
-    bool usarCuestionario = Random.value < 0.5f; // 50% de probabilidad
+        // 🔹 Determinar qué evaluación usar
+        List<string> tiposDisponibles = new List<string>();
+        if (cuentoFinal.cuestionario != null && cuentoFinal.cuestionario.Length > 0)
+            tiposDisponibles.Add("Cuestionario");
+        if (cuentoFinal.fraseIncompleta != null && cuentoFinal.fraseIncompleta.Length > 0)
+            tiposDisponibles.Add("Completar");
+        if (cuentoFinal.ordenarFrases != null && cuentoFinal.ordenarFrases.Length > 0)
+            tiposDisponibles.Add("Ordenar");
 
-    if (usarCuestionario && tieneCuestionario)
-    {
-        panelCuestionario.SetActive(true);
-        panelCompletarFrase.SetActive(false);
-        cuestionarioManager.MostrarCuestionario(cuentoFinal.cuestionario, this);
-    }
-    else if (tieneFrase)
-    {
-        panelCuestionario.SetActive(false);
-        panelCompletarFrase.SetActive(true);
-        var fraseElegida = cuentoFinal.fraseIncompleta[Random.Range(0, cuentoFinal.fraseIncompleta.Length)];
-        completarFrasesManager.MostrarFrase(fraseElegida);
-    }
-    else
-    {
-        // Si aleatoriamente salió cuestionario pero no tiene, mostrar frase
-        panelCuestionario.SetActive(false);
-        panelCompletarFrase.SetActive(false);
-        botonAlimentar.interactable = true;
-    }
+        if (tiposDisponibles.Count == 0)
+        {
+            botonAlimentar.interactable = true;
+            return;
+        }
 
+        // Elegir aleatoriamente
+        string tipoElegido = tiposDisponibles[Random.Range(0, tiposDisponibles.Count)];
+
+        switch (tipoElegido)
+        {
+            case "Cuestionario":
+                panelCuestionario.SetActive(true);
+                cuestionarioManager.MostrarCuestionario(cuentoFinal.cuestionario, this);
+                break;
+
+            case "Completar":
+                panelCompletarFrase.SetActive(true);
+                var fraseElegida = cuentoFinal.fraseIncompleta[Random.Range(0, cuentoFinal.fraseIncompleta.Length)];
+                completarFrasesManager.MostrarFrase(fraseElegida);
+                break;
+
+            case "Ordenar":
+                panelOrdenarFrase.SetActive(true);
+                OrdenarFrasesManager.MostrarFrases(cuentoFinal.ordenarFrases[0]);
+                break;
+        }
     }
 
 

@@ -165,8 +165,6 @@ public class CSVToCuentoImporter : EditorWindow
             };
         }
 
-        
-
 
         // --- NUEVO: Frase incompleta ---
        if (values.Length >= 12 && !string.IsNullOrEmpty(values[9]))
@@ -185,10 +183,21 @@ public class CSVToCuentoImporter : EditorWindow
                         respuestaCorrecta = respuesta
                     }
                 };
-
-
         }
 
+        // --- NUEVO: Ordenar frases ---
+        if (values.Length >= 13 && !string.IsNullOrEmpty(values[12]))
+        {
+            string ordenarRaw = CleanField(values[12]);
+            // Separar por ";" para obtener el orden
+            cuento.ordenarFrases = new OrdenarFrases[]
+            {
+                new OrdenarFrases
+                {
+                    frasesCorrectas = ordenarRaw.Split(';').Select(f => f.Trim()).ToArray()
+                }
+            };
+        }
 
         return cuento;
     }
