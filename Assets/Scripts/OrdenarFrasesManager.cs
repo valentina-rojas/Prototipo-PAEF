@@ -33,6 +33,10 @@ public class OrdenarFrasesManager : MonoBehaviour
 
     public void MostrarFrases(OrdenarFrases ordenar)
     {
+        // Resetear botones de control
+        botonVerificar.gameObject.SetActive(true);
+        botonVolverMenu.gameObject.SetActive(false);
+
         // Limpiar UI
         foreach (var btn in botonesFrases) Destroy(btn);
         botonesFrases.Clear();
