@@ -112,13 +112,13 @@ public class OrdenarFrasesManager : MonoBehaviour
 
         if (correcto)
         {
-            feedbackTexto.text = "✅ ¡Correcto!";
+            feedbackTexto.text = "¡Correcto!";
             feedbackTexto.color = Color.green;
             gameManager.GanarExperiencia(1);
         }
         else
         {
-            feedbackTexto.text = "❌ Intenta de nuevo";
+            feedbackTexto.text = "Incorecto";
             feedbackTexto.color = Color.red;
         }
 

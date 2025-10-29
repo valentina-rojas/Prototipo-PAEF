@@ -57,13 +57,13 @@ public class CompletarFrasesManager : MonoBehaviour
     {
         if (palabra == fraseActual.respuestaCorrecta)
         {
-            feedbackTexto.text = "✅ ¡Correcto!";
+            feedbackTexto.text = "¡Correcto!";
             feedbackTexto.color = Color.green;
             gameManager.GanarExperiencia(1); 
         }
         else
         {
-            feedbackTexto.text = "❌ Incorrecto";
+            feedbackTexto.text = "Incorrecto";
             feedbackTexto.color = Color.red;
         }
 
