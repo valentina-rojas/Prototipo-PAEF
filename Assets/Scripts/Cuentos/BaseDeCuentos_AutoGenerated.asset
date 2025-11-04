@@ -28,19 +28,19 @@ MonoBehaviour:
       a su nuevo amigo azul en el vasto cielo, feliz de haber a\xF1adido un mundo
       a su familia estelar."
     cuestionario:
-    - texto: texto pregunta
+    - texto: "\xBFQu\xE9 descubri\xF3 Leo al mirar por su telescopio?"
       opciones:
-      - "Opci\xF3n1"
-      - " Opci\xF3n2"
-      - " Opci\xF3n3"
+      - Una nave desconocida
+      - ' Un nuevo planeta azul'
+      - ' Una estrella fugaz'
       respuestaCorrecta: 0
     fraseIncompleta:
-    - frase: "El drag\xF3n viv\xEDa en un ___"
+    - frase: "Leo decidi\xF3 llamar al nuevo planeta ___"
       opciones:
-      - Bosque
-      - Castillo
-      - Libro
-      respuestaCorrecta: Castillo
+      - Cosmos
+      - Aurora
+      - Azulito
+      respuestaCorrecta: Aurora
     ordenarFrases:
     - frasesCorrectas:
       - Leo mira las estrellas desde su telescopio
@@ -72,26 +72,26 @@ MonoBehaviour:
       pregunt\xE1ndose si estaban solos. Hab\xEDan descubierto un planeta, pero,
       m\xE1s importante, hab\xEDan encontrado un eco en la soledad del espacio."
     cuestionario:
-    - texto: texto pregunta
+    - texto: "\xBFQu\xE9 descubri\xF3 Luna en los datos del radiotelescopio?"
       opciones:
-      - "Opci\xF3n1"
-      - " Opci\xF3n2"
-      - " Opci\xF3n3"
+      - "Un mensaje de su estaci\xF3n"
+      - " Una se\xF1al con un patr\xF3n matem\xE1tico"
+      - " Un asteroide en direcci\xF3n a la Tierra"
       respuestaCorrecta: 0
     fraseIncompleta:
-    - frase: "El drag\xF3n viv\xEDa en un ___"
+    - frase: "Luna respondi\xF3 al planeta enviando la misma secuencia de ___"
       opciones:
-      - Bosque
-      - Castillo
-      - Libro
-      respuestaCorrecta: Castillo
+      - Notas musicales
+      - "N\xFAmeros primos"
+      - Luces parpadeantes
+      respuestaCorrecta: "N\xFAmeros primos"
     ordenarFrases:
     - frasesCorrectas:
-      - Leo mira las estrellas desde su telescopio
-      - "Calcula la trayectoria del puntito azul que apareci\xF3"
-      - Llama a sus amigos para mostrarles el descubrimiento
-      - Todos celebran con gelatina espacial
-      - Cada noche, Leo saluda a su nuevo amigo azul en el cielo
+      - "Luna buscaba se\xF1ales de vida desde la estaci\xF3n Alfa"
+      - "Capt\xF3 una se\xF1al con un patr\xF3n de pulsos matem\xE1ticos"
+      - "Descifr\xF3 que proven\xEDa del planeta Kepler-186f"
+      - "Envi\xF3 la misma secuencia como respuesta"
+      - "Entendi\xF3 que no estaban solos en el universo"
   - genero: "Ciencia ficci\xF3n"
     escenario: "Estaci\xF3n espacial"
     personaje: "Cient\xEDfico curioso"
