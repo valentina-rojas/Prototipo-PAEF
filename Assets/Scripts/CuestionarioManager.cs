@@ -7,12 +7,13 @@ public class CuestionarioManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private TMP_Text textoPregunta;
     [SerializeField] private Button[] botonesOpciones;
+    [SerializeField] private TMP_Text feedbackTexto; 
     [SerializeField] private Button botonVolverMenu;
+    [SerializeField] private Button botonReintentar; 
     [SerializeField] private GameObject panelCuestionario;
 
     private Pregunta[] preguntas;
     private int indiceActual;
-    private int puntaje;
     private GameManager gameManager;
 
     private void Start()
@@ -26,6 +27,16 @@ public class CuestionarioManager : MonoBehaviour
                 gameManager.botonAlimentar.interactable = true;
             });
         }
+
+        if (botonReintentar != null)
+        {
+            botonReintentar.gameObject.SetActive(false);
+            botonReintentar.onClick.AddListener(() =>
+            {
+                ReiniciarOpciones();
+                botonReintentar.gameObject.SetActive(false);
+            });
+        }
     }
 
     public void MostrarCuestionario(Pregunta[] cuestionario, GameManager manager)
@@ -33,10 +44,11 @@ public class CuestionarioManager : MonoBehaviour
         preguntas = cuestionario;
         gameManager = manager;
         indiceActual = 0;
-        puntaje = 0;
 
         if (botonVolverMenu != null)
             botonVolverMenu.gameObject.SetActive(false);
+        if (botonReintentar != null)
+            botonReintentar.gameObject.SetActive(false);
 
         MostrarPregunta();
     }
@@ -45,18 +57,20 @@ public class CuestionarioManager : MonoBehaviour
     {
         if (indiceActual >= preguntas.Length)
         {
-            textoPregunta.text = $"Has completado el cuestionario!\nPuntaje: {puntaje}/{preguntas.Length}";
+            textoPregunta.text = "¡Has completado el cuestionario!";
             foreach (var btn in botonesOpciones)
                 btn.gameObject.SetActive(false);
 
             if (botonVolverMenu != null)
                 botonVolverMenu.gameObject.SetActive(true);
 
+            feedbackTexto.text = "";
             return;
         }
 
         Pregunta p = preguntas[indiceActual];
         textoPregunta.text = p.texto;
+        feedbackTexto.text = "";
 
         for (int i = 0; i < botonesOpciones.Length; i++)
         {
@@ -64,6 +78,9 @@ public class CuestionarioManager : MonoBehaviour
             {
                 botonesOpciones[i].gameObject.SetActive(true);
                 botonesOpciones[i].GetComponentInChildren<TMP_Text>().text = p.opciones[i];
+                botonesOpciones[i].interactable = true;
+                botonesOpciones[i].GetComponent<Image>().color = Color.white;
+
                 botonesOpciones[i].onClick.RemoveAllListeners();
                 int opcion = i;
                 botonesOpciones[i].onClick.AddListener(() => EvaluarRespuesta(opcion));
@@ -77,14 +94,43 @@ public class CuestionarioManager : MonoBehaviour
 
     private void EvaluarRespuesta(int seleccion)
     {
-        if (seleccion == preguntas[indiceActual].respuestaCorrecta)
+        Pregunta p = preguntas[indiceActual];
+        Color verdeClarito = new Color(0.6f, 1f, 0.6f);
+        Color rojoClarito = new Color(1f, 0.6f, 0.6f);
+
+        // Desactivar todos los botones
+        foreach (var btn in botonesOpciones)
+            btn.interactable = false;
+
+        if (seleccion == p.respuestaCorrecta)
         {
-            puntaje++;
-            gameManager.GanarExperiencia(1); 
+            feedbackTexto.text = "¡Correcto!";
+            feedbackTexto.color = Color.green;
+
+            botonesOpciones[seleccion].GetComponent<Image>().color = verdeClarito;
+
+            gameManager.GanarExperiencia(1);
+            if (botonVolverMenu != null) botonVolverMenu.gameObject.SetActive(true);
+        }
+        else
+        {
+            feedbackTexto.text = "Incorrecto. ¡Intentá de nuevo!";
+            feedbackTexto.color = Color.red;
+
+            botonesOpciones[seleccion].GetComponent<Image>().color = rojoClarito;
+
+            if (botonReintentar != null) botonReintentar.gameObject.SetActive(true);
+        }
+    }
+
+    private void ReiniciarOpciones()
+    {
+        foreach (var btn in botonesOpciones)
+        {
+            btn.interactable = true;
+            btn.GetComponent<Image>().color = Color.white;
         }
 
-        indiceActual++;
-        MostrarPregunta();
+        feedbackTexto.text = "";
     }
 }
-
