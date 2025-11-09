@@ -10,6 +10,8 @@ public class FraseDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     private CanvasGroup canvasGroup;
     private OrdenarFrasesManager manager;
 
+    public bool dragHabilitado = true;
+
     void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -20,28 +22,31 @@ public class FraseDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (!dragHabilitado) return;
+
         originalParent = transform.parent;
-        transform.SetParent(canvas.transform); // mover a la raíz del canvas para arrastrar libremente
+        transform.SetParent(canvas.transform);
         canvasGroup.blocksRaycasts = false;
         canvasGroup.alpha = 0.7f;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (!dragHabilitado) return; 
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (!dragHabilitado) return;
+
         canvasGroup.blocksRaycasts = true;
         canvasGroup.alpha = 1f;
 
-        // Buscar la posición más cercana entre los demás elementos
         Transform nuevoPadre = manager.GetPosicionMasCercana(transform);
         transform.SetParent(nuevoPadre.parent);
         transform.SetSiblingIndex(nuevoPadre.GetSiblingIndex());
 
-        // Reacomodar
         manager.ReordenarFrases();
     }
 }

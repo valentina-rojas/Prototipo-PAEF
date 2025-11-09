@@ -8,6 +8,7 @@ public class CompletarFrasesManager : MonoBehaviour
     public Button[] botonesOpciones;
     public TMP_Text feedbackTexto;
     [SerializeField] private Button botonVolverMenu;
+    [SerializeField] private Button botonReintentar;
     [SerializeField] private GameObject panelCompletarFrase;
     [SerializeField] private GameManager gameManager;
 
@@ -20,9 +21,19 @@ public class CompletarFrasesManager : MonoBehaviour
             botonVolverMenu.gameObject.SetActive(false);
             botonVolverMenu.onClick.AddListener(() =>
             {
-                ReiniciarOpciones(); // ✅ limpiar colores y estado
+                ReiniciarOpciones();
                 panelCompletarFrase.SetActive(false);
                 gameManager.botonAlimentar.interactable = true;
+            });
+        }
+
+        if (botonReintentar != null)
+        {
+            botonReintentar.gameObject.SetActive(false);
+            botonReintentar.onClick.AddListener(() =>
+            {
+                ReiniciarOpciones();
+                botonReintentar.gameObject.SetActive(false);
             });
         }
     }
@@ -38,7 +49,7 @@ public class CompletarFrasesManager : MonoBehaviour
 
         for (int i = 0; i < botonesOpciones.Length; i++)
         {
-            int index = i; // ✅ Copia local para evitar cierre incorrecto
+            int index = i;
             if (index < opcionesMezcladas.Length)
             {
                 string palabra = opcionesMezcladas[index];
@@ -47,7 +58,6 @@ public class CompletarFrasesManager : MonoBehaviour
                 botonesOpciones[index].onClick.AddListener(() => Verificar(palabra, botonesOpciones[index]));
                 botonesOpciones[index].gameObject.SetActive(true);
 
-                // 🔄 Reset visual e interacción
                 botonesOpciones[index].interactable = true;
                 botonesOpciones[index].GetComponent<Image>().color = Color.white;
             }
@@ -56,6 +66,9 @@ public class CompletarFrasesManager : MonoBehaviour
                 botonesOpciones[index].gameObject.SetActive(false);
             }
         }
+
+        if (botonVolverMenu != null) botonVolverMenu.gameObject.SetActive(false);
+        if (botonReintentar != null) botonReintentar.gameObject.SetActive(false);
     }
 
     void Verificar(string palabra, Button botonSeleccionado)
@@ -63,7 +76,6 @@ public class CompletarFrasesManager : MonoBehaviour
         Color verdeClarito = new Color(0.6f, 1f, 0.6f);
         Color rojoClarito = new Color(1f, 0.6f, 0.6f);
 
-        // Desactivar todos los botones
         foreach (Button b in botonesOpciones)
             b.interactable = false;
 
@@ -72,20 +84,21 @@ public class CompletarFrasesManager : MonoBehaviour
             feedbackTexto.text = "¡Correcto!";
             feedbackTexto.color = Color.green;
             botonSeleccionado.GetComponent<Image>().color = verdeClarito;
+
             gameManager.GanarExperiencia(1);
+
+            if (botonVolverMenu != null) botonVolverMenu.gameObject.SetActive(true);
         }
-        else
+        else 
         {
-            feedbackTexto.text = "Incorrecto";
+            feedbackTexto.text = "Incorrecto. ¡Intentá de nuevo!";
             feedbackTexto.color = Color.red;
             botonSeleccionado.GetComponent<Image>().color = rojoClarito;
-        }
 
-        if (botonVolverMenu != null)
-            botonVolverMenu.gameObject.SetActive(true);
+            if (botonReintentar != null) botonReintentar.gameObject.SetActive(true);
+        }
     }
 
-    // ✅ NUEVO: reinicia el color y estado de todos los botones
     private void ReiniciarOpciones()
     {
         foreach (Button b in botonesOpciones)

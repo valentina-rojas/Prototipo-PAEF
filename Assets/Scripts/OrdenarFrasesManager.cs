@@ -10,12 +10,12 @@ public class OrdenarFrasesManager : MonoBehaviour
     public Button botonVerificar;
     public TMP_Text feedbackTexto;
     [SerializeField] private Button botonVolverMenu;
+    [SerializeField] private Button botonReintentar;
     [SerializeField] private GameObject panelOrdenarFrase;
     [SerializeField] private GameManager gameManager;
 
     private List<string> frasesActuales = new List<string>();
     private List<GameObject> botonesFrases = new List<GameObject>();
-
 
     private void Start()
     {
@@ -28,25 +28,32 @@ public class OrdenarFrasesManager : MonoBehaviour
                 gameManager.botonAlimentar.interactable = true;
             });
         }
-    }
 
+        if (botonReintentar != null)
+        {
+            botonReintentar.gameObject.SetActive(false);
+            botonReintentar.onClick.AddListener(() =>
+            {
+                ReiniciarOrden();
+                botonReintentar.gameObject.SetActive(false);
+                botonVerificar.gameObject.SetActive(true);
+            });
+        }
+    }
 
     public void MostrarFrases(OrdenarFrases ordenar)
     {
-        // Resetear botones de control
         botonVerificar.gameObject.SetActive(true);
         botonVolverMenu.gameObject.SetActive(false);
+        if (botonReintentar != null) botonReintentar.gameObject.SetActive(false);
 
-        // Limpiar UI
         foreach (var btn in botonesFrases) Destroy(btn);
         botonesFrases.Clear();
         frasesActuales.Clear();
 
-        // Mezclar frases
         frasesActuales.AddRange(ordenar.frasesCorrectas);
         frasesActuales = Mezclar(frasesActuales);
 
-        // Crear botones
         foreach (string frase in frasesActuales)
         {
             GameObject btnGO = Instantiate(prefabFrase, contenedorFrases);
@@ -90,7 +97,6 @@ public class OrdenarFrasesManager : MonoBehaviour
 
     public void ReordenarFrases()
     {
-        // Reordenar lista interna según el orden actual en el contenedor
         botonesFrases.Clear();
         foreach (Transform t in contenedorFrases)
         {
@@ -99,40 +105,68 @@ public class OrdenarFrasesManager : MonoBehaviour
     }
 
     void Verificar(string[] ordenCorrecto)
-{
-    bool correcto = true;
-    for (int i = 0; i < ordenCorrecto.Length; i++)
     {
-        if (botonesFrases[i].GetComponentInChildren<TMP_Text>().text != ordenCorrecto[i])
+        bool correcto = true;
+        for (int i = 0; i < ordenCorrecto.Length; i++)
         {
-            correcto = false;
-            break;
+            if (botonesFrases[i].GetComponentInChildren<TMP_Text>().text != ordenCorrecto[i])
+            {
+                correcto = false;
+                break;
+            }
+        }
+
+        Color verdeClarito = new Color(0.6f, 1f, 0.6f);
+        Color rojoClarito = new Color(1f, 0.6f, 0.6f); // 🔹 Declarada solo una vez
+
+        if (correcto)
+        {
+            feedbackTexto.text = "¡Correcto!";
+            feedbackTexto.color = Color.green;
+            gameManager.GanarExperiencia(1);
+
+            foreach (var boton in botonesFrases)
+            {
+                Image imagen = boton.GetComponent<Image>();
+                if (imagen != null) imagen.color = verdeClarito;
+            }
+
+            botonVolverMenu.gameObject.SetActive(true);
+            botonVerificar.gameObject.SetActive(false);
+        }
+        else
+        {
+            feedbackTexto.text = "Incorrecto. ¡Intentá de nuevo!";
+            feedbackTexto.color = Color.red;
+
+            foreach (var boton in botonesFrases)
+            {
+                Image imagen = boton.GetComponent<Image>();
+                if (imagen != null) imagen.color = rojoClarito;
+
+                // 🔹 Deshabilitar drag
+                FraseDraggable fd = boton.GetComponent<FraseDraggable>();
+                if (fd != null) fd.dragHabilitado = false;
+            }
+
+            if (botonReintentar != null) botonReintentar.gameObject.SetActive(true);
+            botonVerificar.gameObject.SetActive(false);
         }
     }
 
-    if (correcto)
-    {
-        feedbackTexto.text = "¡Correcto!";
-        feedbackTexto.color = Color.green;
-        gameManager.GanarExperiencia(1);
 
-        // ✅ Cambiar color de los botones a verde clarito
-        Color verdeClarito = new Color(0.6f, 1f, 0.6f); // RGB normalizados (verde pastel)
+   private void ReiniciarOrden()
+    {
         foreach (var boton in botonesFrases)
         {
             Image imagen = boton.GetComponent<Image>();
-            if (imagen != null)
-                imagen.color = verdeClarito;
-        }
-    }
-    else
-    {
-        feedbackTexto.text = "Incorrecto";
-        feedbackTexto.color = Color.red;
-    }
+            if (imagen != null) imagen.color = Color.white;
 
-    botonVolverMenu.gameObject.SetActive(true);
-    botonVerificar.gameObject.SetActive(false);
-}
+            FraseDraggable fd = boton.GetComponent<FraseDraggable>();
+            if (fd != null) fd.dragHabilitado = true; 
+        }
+
+        feedbackTexto.text = "";
+    }
 
 }
