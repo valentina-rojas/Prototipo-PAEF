@@ -13,7 +13,6 @@ public class CompletarFrasesManager : MonoBehaviour
 
     private FraseIncompleta fraseActual;
 
-
     private void Start()
     {
         if (botonVolverMenu != null)
@@ -21,6 +20,7 @@ public class CompletarFrasesManager : MonoBehaviour
             botonVolverMenu.gameObject.SetActive(false);
             botonVolverMenu.onClick.AddListener(() =>
             {
+                ReiniciarOpciones(); // ✅ limpiar colores y estado
                 panelCompletarFrase.SetActive(false);
                 gameManager.botonAlimentar.interactable = true;
             });
@@ -38,37 +38,63 @@ public class CompletarFrasesManager : MonoBehaviour
 
         for (int i = 0; i < botonesOpciones.Length; i++)
         {
-            if (i < opcionesMezcladas.Length)
+            int index = i; // ✅ Copia local para evitar cierre incorrecto
+            if (index < opcionesMezcladas.Length)
             {
-                string palabra = opcionesMezcladas[i];
-                botonesOpciones[i].GetComponentInChildren<TMP_Text>().text = palabra;
-                botonesOpciones[i].onClick.RemoveAllListeners();
-                botonesOpciones[i].onClick.AddListener(() => Verificar(palabra));
-                botonesOpciones[i].gameObject.SetActive(true);
+                string palabra = opcionesMezcladas[index];
+                botonesOpciones[index].GetComponentInChildren<TMP_Text>().text = palabra;
+                botonesOpciones[index].onClick.RemoveAllListeners();
+                botonesOpciones[index].onClick.AddListener(() => Verificar(palabra, botonesOpciones[index]));
+                botonesOpciones[index].gameObject.SetActive(true);
+
+                // 🔄 Reset visual e interacción
+                botonesOpciones[index].interactable = true;
+                botonesOpciones[index].GetComponent<Image>().color = Color.white;
             }
             else
             {
-                botonesOpciones[i].gameObject.SetActive(false);
+                botonesOpciones[index].gameObject.SetActive(false);
             }
         }
     }
 
-    void Verificar(string palabra)
+    void Verificar(string palabra, Button botonSeleccionado)
     {
+        Color verdeClarito = new Color(0.6f, 1f, 0.6f);
+        Color rojoClarito = new Color(1f, 0.6f, 0.6f);
+
+        // Desactivar todos los botones
+        foreach (Button b in botonesOpciones)
+            b.interactable = false;
+
         if (palabra == fraseActual.respuestaCorrecta)
         {
             feedbackTexto.text = "¡Correcto!";
             feedbackTexto.color = Color.green;
-            gameManager.GanarExperiencia(1); 
+            botonSeleccionado.GetComponent<Image>().color = verdeClarito;
+            gameManager.GanarExperiencia(1);
         }
         else
         {
             feedbackTexto.text = "Incorrecto";
             feedbackTexto.color = Color.red;
+            botonSeleccionado.GetComponent<Image>().color = rojoClarito;
         }
 
         if (botonVolverMenu != null)
-                botonVolverMenu.gameObject.SetActive(true);
+            botonVolverMenu.gameObject.SetActive(true);
+    }
+
+    // ✅ NUEVO: reinicia el color y estado de todos los botones
+    private void ReiniciarOpciones()
+    {
+        foreach (Button b in botonesOpciones)
+        {
+            b.interactable = true;
+            b.GetComponent<Image>().color = Color.white;
+        }
+
+        feedbackTexto.text = "";
     }
 
     string[] Mezclar(string[] array)

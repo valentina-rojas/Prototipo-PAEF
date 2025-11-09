@@ -99,30 +99,40 @@ public class OrdenarFrasesManager : MonoBehaviour
     }
 
     void Verificar(string[] ordenCorrecto)
+{
+    bool correcto = true;
+    for (int i = 0; i < ordenCorrecto.Length; i++)
     {
-        bool correcto = true;
-        for (int i = 0; i < ordenCorrecto.Length; i++)
+        if (botonesFrases[i].GetComponentInChildren<TMP_Text>().text != ordenCorrecto[i])
         {
-            if (botonesFrases[i].GetComponentInChildren<TMP_Text>().text != ordenCorrecto[i])
-            {
-                correcto = false;
-                break;
-            }
+            correcto = false;
+            break;
         }
-
-        if (correcto)
-        {
-            feedbackTexto.text = "¡Correcto!";
-            feedbackTexto.color = Color.green;
-            gameManager.GanarExperiencia(1);
-        }
-        else
-        {
-            feedbackTexto.text = "Incorecto";
-            feedbackTexto.color = Color.red;
-        }
-
-        botonVolverMenu.gameObject.SetActive(true);
-        botonVerificar.gameObject.SetActive(false);
     }
+
+    if (correcto)
+    {
+        feedbackTexto.text = "¡Correcto!";
+        feedbackTexto.color = Color.green;
+        gameManager.GanarExperiencia(1);
+
+        // ✅ Cambiar color de los botones a verde clarito
+        Color verdeClarito = new Color(0.6f, 1f, 0.6f); // RGB normalizados (verde pastel)
+        foreach (var boton in botonesFrases)
+        {
+            Image imagen = boton.GetComponent<Image>();
+            if (imagen != null)
+                imagen.color = verdeClarito;
+        }
+    }
+    else
+    {
+        feedbackTexto.text = "Incorrecto";
+        feedbackTexto.color = Color.red;
+    }
+
+    botonVolverMenu.gameObject.SetActive(true);
+    botonVerificar.gameObject.SetActive(false);
+}
+
 }

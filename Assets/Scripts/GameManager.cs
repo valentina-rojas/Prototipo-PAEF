@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject panelOrdenarFrase;
 
     [Header("Botones de selección")]
+    [SerializeField] private TMP_Text tituloSeleccionTexto;
     [SerializeField] private Button boton1;
     [SerializeField] private Button boton2;
     [SerializeField] private Button boton3;
@@ -90,6 +91,8 @@ public class GameManager : MonoBehaviour
         faseActual = FaseSeleccion.Genero;
         botonVolver.gameObject.SetActive(false);
 
+        tituloSeleccionTexto.text = "Seleccioná un género";
+
         if (basesCuentos == null || basesCuentos.Length == 0) return;
 
         var generos = basesCuentos
@@ -112,6 +115,9 @@ public class GameManager : MonoBehaviour
     {
         faseActual = FaseSeleccion.Escenario;
         botonVolver.gameObject.SetActive(true);
+
+        tituloSeleccionTexto.text = "Seleccioná un escenario";
+
         botonVolver.onClick.RemoveAllListeners();
         botonVolver.onClick.AddListener(() => MostrarOpcionesGenero());
 
@@ -135,6 +141,8 @@ public class GameManager : MonoBehaviour
     {
         faseActual = FaseSeleccion.Personaje;
         botonVolver.gameObject.SetActive(true);
+        tituloSeleccionTexto.text = "Seleccioná un personaje";
+
         botonVolver.onClick.RemoveAllListeners();
         botonVolver.onClick.AddListener(() => MostrarOpcionesEscenario());
 
@@ -158,6 +166,9 @@ public class GameManager : MonoBehaviour
     {
         faseActual = FaseSeleccion.Motivacion;
         botonVolver.gameObject.SetActive(true);
+
+        tituloSeleccionTexto.text = "Seleccioná una motivación";
+
         botonVolver.onClick.RemoveAllListeners();
         botonVolver.onClick.AddListener(() => MostrarOpcionesPersonaje());
 
@@ -181,6 +192,9 @@ public class GameManager : MonoBehaviour
     {
         faseActual = FaseSeleccion.Extension;
         botonVolver.gameObject.SetActive(true);
+
+        tituloSeleccionTexto.text = "Seleccioná la extensión del cuento";
+
         botonVolver.onClick.RemoveAllListeners();
         botonVolver.onClick.AddListener(() => MostrarOpcionesMotivacion());
 
