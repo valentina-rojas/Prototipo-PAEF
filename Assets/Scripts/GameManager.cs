@@ -11,7 +11,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CuestionarioManager cuestionarioManager;
     [SerializeField] private CompletarFrasesManager completarFrasesManager;
     [SerializeField] private OrdenarFrasesManager OrdenarFrasesManager;
-    [SerializeField] private BaseDeCuentos[] basesCuentos;
+    
+    private BaseDeCuentos[] basesCuentos;
 
     [Header("UI principales")]
     [SerializeField] public Button botonAlimentar;
@@ -51,26 +52,22 @@ public class GameManager : MonoBehaviour
 
     private List<Button> botones => new List<Button> { boton1, boton2, boton3 };
 
-
-    [SerializeField] private BaseDeCuentos baseDeCuentosPrincipal;
-
-
     private void Start()
     {
-   
-        basesCuentos = new BaseDeCuentos[] { baseDeCuentosPrincipal };
-
+        LoadBaseDeCuentos();
+        
         panelGeneros.SetActive(false);
         panelCuento.SetActive(false);
         panelCuestionario.SetActive(false);
         panelCompletarFrase.SetActive(false);
-
+        panelOrdenarFrase.SetActive(false);
 
         if (barraExperiencia != null)
         {
             barraExperiencia.maxValue = experienciaPorNivel;
             barraExperiencia.value = experienciaActual;
         }
+
         ActualizarTextoExperiencia();
         ActualizarMascota();
 
@@ -78,7 +75,31 @@ public class GameManager : MonoBehaviour
         if (botonVolver != null) botonVolver.gameObject.SetActive(false);
     }
 
-    #region Selección de cuento
+    private void LoadBaseDeCuentos()
+    {
+        BaseDeCuentos baseCargada = Resources.Load<BaseDeCuentos>("baseDeCuentos");
+        
+        if (baseCargada == null)
+        {
+            Debug.LogError("No se pudo cargar baseDeCuentos desde Resources");
+            
+            BaseDeCuentos[] todasBases = Resources.LoadAll<BaseDeCuentos>("");
+            Debug.Log($"Se encontraron {todasBases.Length} bases en Resources:");
+            foreach (var baseEncontrada in todasBases)
+            {
+                Debug.Log($"- {baseEncontrada.name} (cuentos: {baseEncontrada.cuentos?.Length ?? 0})");
+            }
+            
+            basesCuentos = new BaseDeCuentos[0];
+            return;
+        }
+
+        basesCuentos = new BaseDeCuentos[] { baseCargada };
+        Debug.Log($"Base cargada: {baseCargada.name}");
+        Debug.Log($"Cuentos encontrados: {baseCargada.cuentos?.Length ?? 0}");
+    }
+
+    #region Selección de cuentos
     private void MostrarPanelGeneros()
     {
         botonAlimentar.interactable = false;
@@ -93,7 +114,11 @@ public class GameManager : MonoBehaviour
 
         tituloSeleccionTexto.text = "Seleccioná un género";
 
-        if (basesCuentos == null || basesCuentos.Length == 0) return;
+        if (basesCuentos == null || basesCuentos.Length == 0) 
+        {
+            Debug.LogError("No hay bases de cuentos cargadas");
+            return;
+        }
 
         var generos = basesCuentos
             .Where(b => b != null && b.cuentos != null)
@@ -103,6 +128,8 @@ public class GameManager : MonoBehaviour
             .Where(s => !string.IsNullOrEmpty(s))
             .Distinct()
             .ToList();
+
+        Debug.Log($"Géneros disponibles: {generos.Count}");
 
         ConfigurarBotones(generos, opcion =>
         {
@@ -246,7 +273,14 @@ public class GameManager : MonoBehaviour
 
         if (cuentoFinal != null)
         {
+            Debug.Log($"Mostrando cuento: {cuentoFinal.genero} - {cuentoFinal.personaje}");
             cuentosManager.MostrarCuento(cuentoFinal.texto, this);
+        }
+        else
+        {
+            Debug.LogError($"No se encontró cuento con los criterios seleccionados");
+            botonAlimentar.interactable = true;
+            panelCuento.SetActive(false);
         }
     }
     #endregion
@@ -269,17 +303,15 @@ public class GameManager : MonoBehaviour
 
         if (cuentoFinal == null)
         {
+            Debug.LogError("No se pudo encontrar el cuento para las evaluaciones");
             botonAlimentar.interactable = true;
             return;
         }
 
-    
-        // Ocultar todos los paneles
         panelCuestionario.SetActive(false);
         panelCompletarFrase.SetActive(false);
         panelOrdenarFrase.SetActive(false);
 
-        // 🔹 Determinar qué evaluación usar
         List<string> tiposDisponibles = new List<string>();
         if (cuentoFinal.cuestionario != null && cuentoFinal.cuestionario.Length > 0)
             tiposDisponibles.Add("Cuestionario");
@@ -290,11 +322,11 @@ public class GameManager : MonoBehaviour
 
         if (tiposDisponibles.Count == 0)
         {
+            Debug.Log("No hay evaluaciones disponibles para este cuento");
             botonAlimentar.interactable = true;
             return;
         }
 
-        // Elegir aleatoriamente
         string tipoElegido = tiposDisponibles[Random.Range(0, tiposDisponibles.Count)];
 
         switch (tipoElegido)
@@ -317,7 +349,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     public void GanarExperiencia(int cantidad)
     {
         experienciaActual += cantidad;
@@ -326,7 +357,6 @@ public class GameManager : MonoBehaviour
         {
             experienciaActual -= experienciaPorNivel;
             nivelActual++;
-            Debug.Log($"🎉 ¡Mascota subió a nivel {nivelActual}!");
             ActualizarMascota();
         }
 
