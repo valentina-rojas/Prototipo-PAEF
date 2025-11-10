@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 
-
 public class CSVToCuentoImporter : EditorWindow
 {
     private TextAsset csvFile;
@@ -21,7 +20,6 @@ public class CSVToCuentoImporter : EditorWindow
     private void OnGUI()
     {
         GUILayout.Label("Importar CSV a BaseDeCuentos", EditorStyles.boldLabel);
-
         csvFile = (TextAsset)EditorGUILayout.ObjectField("Archivo CSV", csvFile, typeof(TextAsset), false);
 
         if (GUILayout.Button("Importar CSV"))
@@ -35,7 +33,7 @@ public class CSVToCuentoImporter : EditorWindow
 
     private void ImportCSV()
     {
-        string cleanedText = Regex.Replace(csvFile.text, @"\r\n|\r", "\n"); 
+        string cleanedText = Regex.Replace(csvFile.text, @"\r\n|\r", "\n");
         Queue<string> linesQueue = new Queue<string>(cleanedText.Split('\n'));
 
         if (linesQueue.Count < 2)
@@ -44,7 +42,7 @@ public class CSVToCuentoImporter : EditorWindow
             return;
         }
 
-        linesQueue.Dequeue(); 
+        linesQueue.Dequeue(); // saltar encabezado
 
         List<Cuento> cuentosList = new List<Cuento>();
 
@@ -71,7 +69,7 @@ public class CSVToCuentoImporter : EditorWindow
         string cleaned = field.Trim();
         if (cleaned.StartsWith("\"") && cleaned.EndsWith("\""))
             cleaned = cleaned.Substring(1, cleaned.Length - 2);
-        cleaned = cleaned.Replace("\"\"", "\""); 
+        cleaned = cleaned.Replace("\"\"", "\"");
         return cleaned.Trim();
     }
 
@@ -122,13 +120,11 @@ public class CSVToCuentoImporter : EditorWindow
         }
 
         fields.Add(currentField.ToString());
-
         return fields.ToArray();
     }
 
-   private Cuento ParseCuentoFromValues(string[] values)
+    private Cuento ParseCuentoFromValues(string[] values)
     {
-
         Cuento cuento = new Cuento
         {
             genero = CleanField(values[0]),
@@ -138,13 +134,13 @@ public class CSVToCuentoImporter : EditorWindow
             extension = CleanField(values[4]),
             texto = CleanField(values[5]),
             cuestionario = null,
-            fraseIncompleta = null
+            fraseIncompleta = null,
+            ordenarFrases = null
         };
 
-        // --- Cuestionario (ya existente) ---
+        // --- Cuestionario ---
         if (values.Length >= 9 && !string.IsNullOrEmpty(values[6]))
         {
-
             string preguntaTexto = CleanField(values[6]);
             string opcionesRaw = CleanField(values[7]);
             string respuestaRaw = CleanField(values[8]);
@@ -165,31 +161,28 @@ public class CSVToCuentoImporter : EditorWindow
             };
         }
 
-
-        // --- NUEVO: Frase incompleta ---
-       if (values.Length >= 12 && !string.IsNullOrEmpty(values[9]))
+        // --- Frase incompleta ---
+        if (values.Length >= 12 && !string.IsNullOrEmpty(values[9]))
         {
-
             string frase = CleanField(values[9]);
             string opcionesRaw = CleanField(values[10]);
             string respuesta = CleanField(values[11]);
 
             cuento.fraseIncompleta = new FraseIncompleta[]
+            {
+                new FraseIncompleta
                 {
-                    new FraseIncompleta
-                    {
-                        frase = frase,
-                        opciones = opcionesRaw.Split(';').Select(o => o.Trim()).ToArray(),
-                        respuestaCorrecta = respuesta
-                    }
-                };
+                    frase = frase,
+                    opciones = opcionesRaw.Split(';').Select(o => o.Trim()).ToArray(),
+                    respuestaCorrecta = respuesta
+                }
+            };
         }
 
-        // --- NUEVO: Ordenar frases ---
+        // --- Ordenar frases ---
         if (values.Length >= 13 && !string.IsNullOrEmpty(values[12]))
         {
             string ordenarRaw = CleanField(values[12]);
-            // Separar por ";" para obtener el orden
             cuento.ordenarFrases = new OrdenarFrases[]
             {
                 new OrdenarFrases
@@ -201,7 +194,6 @@ public class CSVToCuentoImporter : EditorWindow
 
         return cuento;
     }
-
 
     private void CreateBaseDeCuentos(Cuento[] cuentos)
     {
@@ -220,7 +212,28 @@ public class CSVToCuentoImporter : EditorWindow
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        EditorUtility.DisplayDialog("Éxito", $"Base de cuentos creada con {cuentos.Length} cuentos válidos\nUbicación: {assetPath}", "OK");
+        // --- Exportar a JSON en StreamingAssets ---
+        string streamingPath = Path.Combine(Application.dataPath, "StreamingAssets");
+        if (!Directory.Exists(streamingPath))
+            Directory.CreateDirectory(streamingPath);
+
+        string jsonPath = Path.Combine(streamingPath, "baseDeCuentos.json");
+        string json = JsonUtility.ToJson(new BaseDeCuentosWrapper { cuentos = cuentos }, true);
+        File.WriteAllText(jsonPath, json, System.Text.Encoding.UTF8);
+
+        Debug.Log($"Base exportada: {assetPath}");
+        Debug.Log($"JSON generado en: {jsonPath}");
+
+        EditorUtility.DisplayDialog("Éxito",
+            $"Base de cuentos creada ({cuentos.Length} cuentos)\nSe guardó como asset y JSON.",
+            "OK");
+
         Selection.activeObject = baseDeCuentos;
+    }
+
+    [System.Serializable]
+    private class BaseDeCuentosWrapper
+    {
+        public Cuento[] cuentos;
     }
 }

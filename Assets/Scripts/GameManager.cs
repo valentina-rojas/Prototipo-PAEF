@@ -11,7 +11,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CuestionarioManager cuestionarioManager;
     [SerializeField] private CompletarFrasesManager completarFrasesManager;
     [SerializeField] private OrdenarFrasesManager OrdenarFrasesManager;
-    
+
+    [Header("Base de cuentos")]
+    [SerializeField] private TextAsset baseDeCuentosJSON;
+
     private BaseDeCuentos[] basesCuentos;
 
     [Header("UI principales")]
@@ -32,11 +35,11 @@ public class GameManager : MonoBehaviour
     [Header("Experiencia y barra")]
     [SerializeField] private Slider barraExperiencia;
     [SerializeField] private TMP_Text textoExperiencia;
-    [SerializeField] private int experienciaPorNivel = 5; 
+    [SerializeField] private int experienciaPorNivel = 5;
 
     [Header("Mascota y evolución")]
-    [SerializeField] private Image mascotaImage; 
-    [SerializeField] private Sprite[] spritesEvolucion; 
+    [SerializeField] private Image mascotaImage;
+    [SerializeField] private Sprite[] spritesEvolucion;
 
     private int experienciaActual = 0;
     private int nivelActual = 1;
@@ -52,10 +55,16 @@ public class GameManager : MonoBehaviour
 
     private List<Button> botones => new List<Button> { boton1, boton2, boton3 };
 
+    [System.Serializable]
+    private class BaseDeCuentosWrapper
+    {
+        public Cuento[] cuentos;
+    }
+
     private void Start()
     {
-        LoadBaseDeCuentos();
-        
+        CargarBaseDeCuentosDesdeJSON();
+
         panelGeneros.SetActive(false);
         panelCuento.SetActive(false);
         panelCuestionario.SetActive(false);
@@ -75,28 +84,28 @@ public class GameManager : MonoBehaviour
         if (botonVolver != null) botonVolver.gameObject.SetActive(false);
     }
 
-    private void LoadBaseDeCuentos()
+    private void CargarBaseDeCuentosDesdeJSON()
     {
-        BaseDeCuentos baseCargada = Resources.Load<BaseDeCuentos>("baseDeCuentos");
-        
-        if (baseCargada == null)
+        if (baseDeCuentosJSON == null)
         {
-            Debug.LogError("No se pudo cargar baseDeCuentos desde Resources");
-            
-            BaseDeCuentos[] todasBases = Resources.LoadAll<BaseDeCuentos>("");
-            Debug.Log($"Se encontraron {todasBases.Length} bases en Resources:");
-            foreach (var baseEncontrada in todasBases)
-            {
-                Debug.Log($"- {baseEncontrada.name} (cuentos: {baseEncontrada.cuentos?.Length ?? 0})");
-            }
-            
-            basesCuentos = new BaseDeCuentos[0];
+            Debug.LogError("No se asignó el archivo baseDeCuentos.json en el GameManager");
             return;
         }
 
-        basesCuentos = new BaseDeCuentos[] { baseCargada };
-        Debug.Log($"Base cargada: {baseCargada.name}");
-        Debug.Log($"Cuentos encontrados: {baseCargada.cuentos?.Length ?? 0}");
+        string json = baseDeCuentosJSON.text;
+        BaseDeCuentosWrapper wrapper = JsonUtility.FromJson<BaseDeCuentosWrapper>(json);
+
+        if (wrapper == null || wrapper.cuentos == null || wrapper.cuentos.Length == 0)
+        {
+            Debug.LogError("El JSON está vacío o mal formateado");
+            return;
+        }
+
+        BaseDeCuentos baseRuntime = ScriptableObject.CreateInstance<BaseDeCuentos>();
+        baseRuntime.cuentos = wrapper.cuentos;
+        basesCuentos = new BaseDeCuentos[] { baseRuntime };
+
+        Debug.Log($"Base de cuentos cargada ({baseRuntime.cuentos.Length} cuentos)");
     }
 
     #region Selección de cuentos
@@ -111,10 +120,9 @@ public class GameManager : MonoBehaviour
     {
         faseActual = FaseSeleccion.Genero;
         botonVolver.gameObject.SetActive(false);
-
         tituloSeleccionTexto.text = "Seleccioná un género";
 
-        if (basesCuentos == null || basesCuentos.Length == 0) 
+        if (basesCuentos == null || basesCuentos.Length == 0)
         {
             Debug.LogError("No hay bases de cuentos cargadas");
             return;
@@ -142,7 +150,6 @@ public class GameManager : MonoBehaviour
     {
         faseActual = FaseSeleccion.Escenario;
         botonVolver.gameObject.SetActive(true);
-
         tituloSeleccionTexto.text = "Seleccioná un escenario";
 
         botonVolver.onClick.RemoveAllListeners();
@@ -193,7 +200,6 @@ public class GameManager : MonoBehaviour
     {
         faseActual = FaseSeleccion.Motivacion;
         botonVolver.gameObject.SetActive(true);
-
         tituloSeleccionTexto.text = "Seleccioná una motivación";
 
         botonVolver.onClick.RemoveAllListeners();
@@ -219,7 +225,6 @@ public class GameManager : MonoBehaviour
     {
         faseActual = FaseSeleccion.Extension;
         botonVolver.gameObject.SetActive(true);
-
         tituloSeleccionTexto.text = "Seleccioná la extensión del cuento";
 
         botonVolver.onClick.RemoveAllListeners();
@@ -285,6 +290,7 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
+    #region Evaluaciones, XP y Mascota
     public void FinalizarLectura(string genero)
     {
         panelCuento.SetActive(false);
@@ -381,4 +387,5 @@ public class GameManager : MonoBehaviour
             mascotaImage.SetNativeSize();
         }
     }
+    #endregion
 }
