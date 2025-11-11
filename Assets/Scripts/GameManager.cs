@@ -27,6 +27,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject panelCompletarFrase;
     [SerializeField] private GameObject panelOrdenarFrase;
 
+    [Header("Botón cerrar general")]
+    [SerializeField] private Button botonCerrarGeneral;
+
     [Header("Botones de selección")]
     [SerializeField] private TMP_Text tituloSeleccionTexto;
     [SerializeField] private Button boton1;
@@ -83,6 +86,13 @@ public class GameManager : MonoBehaviour
 
         botonAlimentar.onClick.AddListener(MostrarPanelGeneros);
         if (botonVolver != null) botonVolver.gameObject.SetActive(false);
+
+        if (botonCerrarGeneral != null)
+        {
+            botonCerrarGeneral.onClick.AddListener(VolverAlPrincipal);
+            botonCerrarGeneral.gameObject.SetActive(false);
+        }
+
     }
 
     private void CargarBaseDeCuentosDesdeJSON()
@@ -113,6 +123,7 @@ public class GameManager : MonoBehaviour
     public void MostrarPanelGeneros()
     {
         botonAlimentar.interactable = false;
+        botonCerrarGeneral.gameObject.SetActive(true);
         panelGeneros.SetActive(true);
         MostrarOpcionesGenero();
     }
@@ -341,20 +352,24 @@ public class GameManager : MonoBehaviour
         {
             case "Cuestionario":
                 panelCuestionario.SetActive(true);
+                botonCerrarGeneral.gameObject.SetActive(true);
                 cuestionarioManager.MostrarCuestionario(cuentoFinal.cuestionario, this);
                 break;
 
             case "Completar":
                 panelCompletarFrase.SetActive(true);
+                botonCerrarGeneral.gameObject.SetActive(true);
                 var fraseElegida = cuentoFinal.fraseIncompleta[Random.Range(0, cuentoFinal.fraseIncompleta.Length)];
                 completarFrasesManager.MostrarFrase(fraseElegida);
                 break;
 
             case "Ordenar":
                 panelOrdenarFrase.SetActive(true);
+                botonCerrarGeneral.gameObject.SetActive(true);
                 OrdenarFrasesManager.MostrarFrases(cuentoFinal.ordenarFrases[0]);
                 break;
         }
+
 
         if (misionesManager != null)
         {
@@ -400,4 +415,18 @@ public class GameManager : MonoBehaviour
         }
     }
     #endregion
+
+
+    public void VolverAlPrincipal()
+    {
+        panelGeneros.SetActive(false);
+        panelCuento.SetActive(false);
+        panelCuestionario.SetActive(false);
+        panelCompletarFrase.SetActive(false);
+        panelOrdenarFrase.SetActive(false);
+
+        botonAlimentar.interactable = true;
+        botonCerrarGeneral.gameObject.SetActive(false);
+    }
+
 }
