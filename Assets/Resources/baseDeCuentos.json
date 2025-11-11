@@ -15,7 +15,7 @@
                         " Un nuevo planeta azul",
                         " Una estrella fugaz"
                     ],
-                    "respuestaCorrecta": 0
+                    "respuestaCorrecta": 1
                 }
             ],
             "fraseIncompleta": [
@@ -54,7 +54,7 @@
                         " Una señal con un patrón matemático",
                         " Un asteroide en dirección a la Tierra"
                     ],
-                    "respuestaCorrecta": 0
+                    "respuestaCorrecta": 1
                 }
             ],
             "fraseIncompleta": [
@@ -248,7 +248,7 @@
                         " Porque era el plato favorito de Sparky",
                         " Porque quería limpiar el laboratorio"
                     ],
-                    "respuestaCorrecta": 0
+                    "respuestaCorrecta": 1
                 }
             ],
             "fraseIncompleta": [
