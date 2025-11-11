@@ -25,6 +25,7 @@ public class OrdenarFrasesManager : MonoBehaviour
             botonVolverMenu.onClick.AddListener(() =>
             {
                 panelOrdenarFrase.SetActive(false);
+                gameManager.botonCerrarGeneral.gameObject.SetActive(false);
                 gameManager.botonAlimentar.interactable = true;
             });
         }
@@ -117,7 +118,7 @@ public class OrdenarFrasesManager : MonoBehaviour
         }
 
         Color verdeClarito = new Color(0.6f, 1f, 0.6f);
-        Color rojoClarito = new Color(1f, 0.6f, 0.6f); // 🔹 Declarada solo una vez
+        Color rojoClarito = new Color(1f, 0.6f, 0.6f); 
 
         if (correcto)
         {

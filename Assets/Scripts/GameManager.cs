@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject panelOrdenarFrase;
 
     [Header("Botón cerrar general")]
-    [SerializeField] private Button botonCerrarGeneral;
+    [SerializeField] public Button botonCerrarGeneral;
 
     [Header("Botones de selección")]
     [SerializeField] private TMP_Text tituloSeleccionTexto;
@@ -276,6 +276,13 @@ public class GameManager : MonoBehaviour
         panelCuento.SetActive(true);
         botonVolver.gameObject.SetActive(false);
 
+        ScrollRect scrollRect = panelCuento.GetComponentInChildren<ScrollRect>(true);
+        if (scrollRect != null)
+        {
+            Canvas.ForceUpdateCanvases(); 
+            scrollRect.verticalNormalizedPosition = 1f; 
+        }
+
         var cuentoFinal = basesCuentos
             .Where(b => b != null && b.cuentos != null)
             .SelectMany(b => b.cuentos)
@@ -300,6 +307,7 @@ public class GameManager : MonoBehaviour
             panelCuento.SetActive(false);
         }
     }
+
 
     #endregion
 

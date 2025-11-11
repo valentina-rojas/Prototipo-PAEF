@@ -23,6 +23,7 @@ public class CompletarFrasesManager : MonoBehaviour
             {
                 ReiniciarOpciones();
                 panelCompletarFrase.SetActive(false);
+                gameManager.botonCerrarGeneral.gameObject.SetActive(false);
                 gameManager.botonAlimentar.interactable = true;
             });
         }
