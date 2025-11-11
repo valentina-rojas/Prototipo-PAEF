@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 1.9841003, y: -0.5894928}
-  m_SizeDelta: {x: -35.3337, y: -119.4259}
+  m_AnchoredPosition: {x: -2.4231873, y: -7.083496}
+  m_SizeDelta: {x: -33.0599, y: -185.2065}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1493402922675434538
 CanvasRenderer:
@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d31ebf85d27bde54b96b258f24517145, type: 2}
+  m_sharedMaterial: {fileID: -3356937155806682274, guid: d31ebf85d27bde54b96b258f24517145, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -98,11 +98,11 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 10
   m_fontSizeMax: 50
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: -7
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -174,8 +174,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.6094, y: 656.3673}
-  m_SizeDelta: {x: 596.7813, y: 311.2656}
+  m_AnchoredPosition: {x: -81.901306, y: 600.87726}
+  m_SizeDelta: {x: 763.8029, y: 422.2457}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4261879347761576480
 CanvasRenderer:
@@ -272,6 +272,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FraseDraggable
   originalParent: {fileID: 0}
+  dragHabilitado: 1
 --- !u!225 &-6799992541862121904
 CanvasGroup:
   m_ObjectHideFlags: 0

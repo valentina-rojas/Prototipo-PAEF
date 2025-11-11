@@ -289,6 +289,7 @@ public class GameManager : MonoBehaviour
             panelCuento.SetActive(false);
         }
     }
+
     #endregion
 
     #region Evaluaciones, XP y Mascota

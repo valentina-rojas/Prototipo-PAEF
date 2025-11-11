@@ -13,7 +13,7 @@ public class Mision
     public bool completada;
     public bool reclamada;
     public int recompensaEXP;
-    public string id; 
+    public string id;
 }
 
 public enum MisionTipo
@@ -30,6 +30,10 @@ public class MisionesManager : MonoBehaviour
     [SerializeField] private Button botonAbrirMisiones;
     [SerializeField] private Button botonCerrarMisiones;
     [SerializeField] private Transform contenedorMisiones;
+
+    [Header("Texto misiones completadas")]
+    [SerializeField] private TMP_Text textoMisionesCompletadas;
+
 
     [Header("Referencia GameManager")]
     [SerializeField] private GameManager gameManager;
@@ -92,7 +96,7 @@ public class MisionesManager : MonoBehaviour
     {
         misionesActivas.Clear();
         List<Mision> disponibles = todasLasMisiones.Where(m => !m.completada).ToList();
-        
+
         while (misionesActivas.Count < 3 && disponibles.Count > 0)
         {
             int index = Random.Range(0, disponibles.Count);
@@ -103,14 +107,30 @@ public class MisionesManager : MonoBehaviour
 
     public void MostrarMisiones(List<Mision> misiones)
     {
+        // Limpiar UI anterior
         foreach (var obj in misionesUI)
             Destroy(obj);
         misionesUI.Clear();
 
+        if (misiones.Count == 0)
+        {
+            if (textoMisionesCompletadas != null)
+            {
+                textoMisionesCompletadas.gameObject.SetActive(true);
+                textoMisionesCompletadas.text = "¡Todas las misiones completadas!";
+            }
+            return;
+        }
+        else
+        {
+            if (textoMisionesCompletadas != null)
+                textoMisionesCompletadas.gameObject.SetActive(false);
+        }
+
         for (int i = 0; i < misiones.Count; i++)
         {
             Mision misionActual = misiones[i];
-            
+
             GameObject go = Instantiate(prefabMision, contenedorMisiones);
             MisionUI ui = go.GetComponent<MisionUI>();
 
@@ -120,23 +140,25 @@ public class MisionesManager : MonoBehaviour
                 continue;
             }
 
+            // Actualizar descripción
             ui.textoDescripcion.text = misionActual.descripcion;
             ui.textoDescripcion.color = misionActual.completada ? Color.green : Color.white;
-            ui.boton.onClick.RemoveAllListeners();
-            
-            Mision misionParaListener = misionActual;
 
+            // Limpiar listeners previos
+            ui.boton.onClick.RemoveAllListeners();
+
+            // Configurar botón según estado de la misión
             if (!misionActual.completada)
             {
                 ui.textoBoton.text = "Ir a la misión";
                 ui.boton.interactable = true;
-                ui.boton.onClick.AddListener(() => OnBotonMisionClick(misionParaListener));
+                ui.boton.onClick.AddListener(CreateListenerMision(misionActual));
             }
             else if (misionActual.completada && !misionActual.reclamada)
             {
                 ui.textoBoton.text = "Reclamar";
                 ui.boton.interactable = true;
-                ui.boton.onClick.AddListener(() => OnBotonReclamarClick(misionParaListener));
+                ui.boton.onClick.AddListener(CreateListenerReclamar(misionActual));
             }
             else
             {
@@ -148,44 +170,45 @@ public class MisionesManager : MonoBehaviour
         }
     }
 
-    private void OnBotonMisionClick(Mision mision)
-    {
-        Debug.Log($"Botón clickeado para misión: {mision.descripcion}");
-        CerrarPanel();
 
-        if (mision.tipo == MisionTipo.LeerCuento || mision.tipo == MisionTipo.LeerCuentoGenero)
+    // Listener seguro para "Ir a la misión"
+    private UnityEngine.Events.UnityAction CreateListenerMision(Mision mision)
+    {
+        return () =>
         {
+            Debug.Log($"Botón clickeado para misión: {mision.descripcion}");
+            CerrarPanel();
             gameManager.MostrarPanelGeneros();
-        }
+          
+        
+        };
     }
 
-    private void OnBotonReclamarClick(Mision mision)
+
+    // Listener seguro para "Reclamar"
+    private UnityEngine.Events.UnityAction CreateListenerReclamar(Mision mision)
     {
-        Debug.Log($"Reclamando recompensa para: {mision.descripcion}");
-        ReclamarRecompensa(mision);
+        return () =>
+        {
+            Debug.Log($"Reclamando recompensa para: {mision.descripcion}");
+            ReclamarRecompensa(mision);
+        };
     }
 
     private void ReclamarRecompensa(Mision mision)
     {
         Mision misionCompleta = todasLasMisiones.FirstOrDefault(m => m.id == mision.id);
         if (misionCompleta != null)
-        {
             misionCompleta.reclamada = true;
-        }
 
         Mision misionActiva = misionesActivas.FirstOrDefault(m => m.id == mision.id);
         if (misionActiva != null)
-        {
             misionActiva.reclamada = true;
-        }
 
         gameManager.GanarExperiencia(mision.recompensaEXP);
         Debug.Log($"Recompensa reclamada: {mision.recompensaEXP} EXP");
 
-        bool todasReclamadas = misionesActivas.All(x => x.completada && x.reclamada);
-        Debug.Log($"Todas las misiones reclamadas: {todasReclamadas}");
-
-        if (todasReclamadas)
+        if (misionesActivas.All(x => x.completada && x.reclamada))
         {
             Debug.Log("Generando nuevas misiones activas...");
             GenerarMisionesActivas();
@@ -204,13 +227,8 @@ public class MisionesManager : MonoBehaviour
         {
             if (!m.completada && m.tipo == tipo)
             {
-                if (tipo == MisionTipo.LeerCuento)
-                {
-                    m.completada = true;
-                    huboCambio = true;
-                    Debug.Log($"Misión completada: {m.descripcion}");
-                }
-                else if (tipo == MisionTipo.LeerCuentoGenero && Normalizar(m.parametro) == Normalizar(parametro))
+                if (tipo == MisionTipo.LeerCuento || 
+                    (tipo == MisionTipo.LeerCuentoGenero && Normalizar(m.parametro) == Normalizar(parametro)))
                 {
                     m.completada = true;
                     huboCambio = true;
@@ -223,13 +241,8 @@ public class MisionesManager : MonoBehaviour
         {
             if (!m.completada && m.tipo == tipo)
             {
-                if (tipo == MisionTipo.LeerCuento)
-                {
-                    m.completada = true;
-                    huboCambio = true;
-                    Debug.Log($"Misión activa completada: {m.descripcion}");
-                }
-                else if (tipo == MisionTipo.LeerCuentoGenero && Normalizar(m.parametro) == Normalizar(parametro))
+                if (tipo == MisionTipo.LeerCuento || 
+                    (tipo == MisionTipo.LeerCuentoGenero && Normalizar(m.parametro) == Normalizar(parametro)))
                 {
                     m.completada = true;
                     huboCambio = true;
@@ -248,14 +261,13 @@ public class MisionesManager : MonoBehaviour
     private string Normalizar(string texto)
     {
         if (string.IsNullOrEmpty(texto)) return "";
-        string normalizado = texto.ToLowerInvariant()
-            .Replace("á", "a")
-            .Replace("é", "e")
-            .Replace("í", "i")
-            .Replace("ó", "o")
-            .Replace("ú", "u")
-            .Trim();
-        return normalizado;
+        return texto.ToLowerInvariant()
+                    .Replace("á", "a")
+                    .Replace("é", "e")
+                    .Replace("í", "i")
+                    .Replace("ó", "o")
+                    .Replace("ú", "u")
+                    .Trim();
     }
 
     public void DebugMisiones()
@@ -263,7 +275,7 @@ public class MisionesManager : MonoBehaviour
         Debug.Log("=== DEBUG MISIONES ===");
         Debug.Log($"Total misiones: {todasLasMisiones.Count}");
         Debug.Log($"Misiones activas: {misionesActivas.Count}");
-        
+
         foreach (var m in misionesActivas)
         {
             Debug.Log($"Misión: {m.descripcion} - Completada: {m.completada} - Reclamada: {m.reclamada}");
