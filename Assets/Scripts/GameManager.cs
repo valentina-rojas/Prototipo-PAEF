@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CuestionarioManager cuestionarioManager;
     [SerializeField] private CompletarFrasesManager completarFrasesManager;
     [SerializeField] private OrdenarFrasesManager OrdenarFrasesManager;
+    [SerializeField] private MisionesManager misionesManager;
 
     [Header("Base de cuentos")]
     [SerializeField] private TextAsset baseDeCuentosJSON;
@@ -109,7 +110,7 @@ public class GameManager : MonoBehaviour
     }
 
     #region Selección de cuentos
-    private void MostrarPanelGeneros()
+    public void MostrarPanelGeneros()
     {
         botonAlimentar.interactable = false;
         panelGeneros.SetActive(true);
@@ -352,6 +353,16 @@ public class GameManager : MonoBehaviour
                 panelOrdenarFrase.SetActive(true);
                 OrdenarFrasesManager.MostrarFrases(cuentoFinal.ordenarFrases[0]);
                 break;
+        }
+
+        if (misionesManager != null)
+        {
+            misionesManager.CompletarMision(MisionTipo.LeerCuento);
+            misionesManager.CompletarMision(MisionTipo.LeerCuentoGenero, generoSeleccionado);
+        }
+        else
+        {
+            Debug.LogWarning("MisionesManager no está asignado en GameManager");
         }
     }
 
