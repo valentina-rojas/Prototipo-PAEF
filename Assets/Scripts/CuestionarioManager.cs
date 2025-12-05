@@ -25,7 +25,7 @@ public class CuestionarioManager : MonoBehaviour
             botonVolverMenu.onClick.AddListener(() =>
             {
                 panelCuestionario.SetActive(false);
-                gameManager.botonCerrarGeneral.gameObject.SetActive(false);
+                gameManager.botonVolverMenu.gameObject.SetActive(false);
                 gameManager.botonAlimentar.interactable = true;
             });
         }

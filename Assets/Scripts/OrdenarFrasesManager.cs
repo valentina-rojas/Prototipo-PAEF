@@ -25,7 +25,7 @@ public class OrdenarFrasesManager : MonoBehaviour
             botonVolverMenu.onClick.AddListener(() =>
             {
                 panelOrdenarFrase.SetActive(false);
-                gameManager.botonCerrarGeneral.gameObject.SetActive(false);
+                gameManager.botonVolverMenu.gameObject.SetActive(false);
                 gameManager.botonAlimentar.interactable = true;
             });
         }

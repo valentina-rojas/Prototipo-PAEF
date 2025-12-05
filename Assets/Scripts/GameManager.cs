@@ -28,7 +28,18 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject panelOrdenarFrase;
 
     [Header("Botón cerrar general")]
-    [SerializeField] public Button botonCerrarGeneral;
+    [SerializeField] public Button botonVolverMenu;
+    [SerializeField] public Button botonCerrarJuego;
+
+    [Header("Confirmación volver al menú")]
+    [SerializeField] private GameObject panelConfirmarVolver;
+    [SerializeField] private Button botonVolverSi;
+    [SerializeField] private Button botonVolverNo;
+
+    [Header("Confirmación salir del juego")]
+    [SerializeField] private GameObject panelConfirmarSalir;
+    [SerializeField] private Button botonSalirSi;
+    [SerializeField] private Button botonSalirNo;
 
     [Header("Botones de selección")]
     [SerializeField] private TMP_Text tituloSeleccionTexto;
@@ -87,13 +98,70 @@ public class GameManager : MonoBehaviour
         botonAlimentar.onClick.AddListener(MostrarPanelGeneros);
         if (botonVolver != null) botonVolver.gameObject.SetActive(false);
 
-        if (botonCerrarGeneral != null)
+        if (botonVolverMenu != null)
         {
-            botonCerrarGeneral.onClick.AddListener(VolverAlPrincipal);
-            botonCerrarGeneral.gameObject.SetActive(false);
+            botonVolverMenu.onClick.RemoveAllListeners();
+            botonVolverMenu.onClick.AddListener(MostrarConfirmacionVolver);
+            botonVolverMenu.gameObject.SetActive(false);
         }
 
+        if (botonCerrarJuego != null)
+        {
+            botonCerrarJuego.onClick.RemoveAllListeners();
+            botonCerrarJuego.onClick.AddListener(MostrarConfirmacionSalir);
+           // botonCerrarJuego.gameObject.SetActive(true);
+        }
+
+        panelConfirmarVolver?.SetActive(false);
+        panelConfirmarSalir?.SetActive(false);
+
+        if (botonVolverSi != null) botonVolverSi.onClick.AddListener(ConfirmarVolver);
+        if (botonVolverNo != null) botonVolverNo.onClick.AddListener(CerrarPanelVolver);
+
+        if (botonSalirSi != null) botonSalirSi.onClick.AddListener(ConfirmarSalir);
+        if (botonSalirNo != null) botonSalirNo.onClick.AddListener(CerrarPanelSalir);
     }
+
+
+
+    private void MostrarConfirmacionVolver()
+    {
+        panelConfirmarVolver.SetActive(true);
+    }
+
+    private void CerrarPanelVolver()
+    {
+        panelConfirmarVolver.SetActive(false);
+    }
+
+    private void ConfirmarVolver()
+    {
+        panelConfirmarVolver.SetActive(false);
+        VolverAlPrincipal();
+    }
+
+    private void MostrarConfirmacionSalir()
+    {
+        panelConfirmarSalir.SetActive(true);
+    }
+
+    private void CerrarPanelSalir()
+    {
+        panelConfirmarSalir.SetActive(false);
+    }
+
+    private void ConfirmarSalir()
+    {
+        panelConfirmarSalir.SetActive(false);
+
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #else
+        Application.Quit();
+        #endif
+    }
+
+   
 
     private void CargarBaseDeCuentosDesdeJSON()
     {
@@ -123,7 +191,7 @@ public class GameManager : MonoBehaviour
     public void MostrarPanelGeneros()
     {
         botonAlimentar.interactable = false;
-        botonCerrarGeneral.gameObject.SetActive(true);
+        botonVolverMenu.gameObject.SetActive(true);
         panelGeneros.SetActive(true);
         MostrarOpcionesGenero();
     }
@@ -279,8 +347,8 @@ public class GameManager : MonoBehaviour
         ScrollRect scrollRect = panelCuento.GetComponentInChildren<ScrollRect>(true);
         if (scrollRect != null)
         {
-            Canvas.ForceUpdateCanvases(); 
-            scrollRect.verticalNormalizedPosition = 1f; 
+            Canvas.ForceUpdateCanvases();
+            scrollRect.verticalNormalizedPosition = 1f;
         }
 
         var cuentoFinal = basesCuentos
@@ -307,7 +375,6 @@ public class GameManager : MonoBehaviour
             panelCuento.SetActive(false);
         }
     }
-
 
     #endregion
 
@@ -360,24 +427,23 @@ public class GameManager : MonoBehaviour
         {
             case "Cuestionario":
                 panelCuestionario.SetActive(true);
-                botonCerrarGeneral.gameObject.SetActive(true);
+                botonVolverMenu.gameObject.SetActive(true);
                 cuestionarioManager.MostrarCuestionario(cuentoFinal.cuestionario, this);
                 break;
 
             case "Completar":
                 panelCompletarFrase.SetActive(true);
-                botonCerrarGeneral.gameObject.SetActive(true);
+                botonVolverMenu.gameObject.SetActive(true);
                 var fraseElegida = cuentoFinal.fraseIncompleta[Random.Range(0, cuentoFinal.fraseIncompleta.Length)];
                 completarFrasesManager.MostrarFrase(fraseElegida);
                 break;
 
             case "Ordenar":
                 panelOrdenarFrase.SetActive(true);
-                botonCerrarGeneral.gameObject.SetActive(true);
+                botonVolverMenu.gameObject.SetActive(true);
                 OrdenarFrasesManager.MostrarFrases(cuentoFinal.ordenarFrases[0]);
                 break;
         }
-
 
         if (misionesManager != null)
         {
@@ -424,7 +490,6 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-
     public void VolverAlPrincipal()
     {
         panelGeneros.SetActive(false);
@@ -434,7 +499,56 @@ public class GameManager : MonoBehaviour
         panelOrdenarFrase.SetActive(false);
 
         botonAlimentar.interactable = true;
-        botonCerrarGeneral.gameObject.SetActive(false);
+        botonVolverMenu.gameObject.SetActive(false);
     }
+
+    
+    public void LeerCuentoAleatorioPorGenero(string genero)
+    {
+        if (basesCuentos == null || basesCuentos.Length == 0)
+        {
+            Debug.LogError("No hay base de cuentos cargada");
+            return;
+        }
+
+        // Buscar cuentos del género solicitado
+        var cuentosDelGenero = basesCuentos
+            .Where(b => b != null && b.cuentos != null)
+            .SelectMany(b => b.cuentos)
+            .Where(c => c.genero != null &&
+                        c.genero.Trim().ToLower() == genero.Trim().ToLower())
+            .ToList();
+
+        if (cuentosDelGenero.Count == 0)
+        {
+            Debug.LogWarning($"No hay cuentos del género: {genero}");
+            return;
+        }
+
+        // Seleccionar uno al azar
+        var cuento = cuentosDelGenero[Random.Range(0, cuentosDelGenero.Count)];
+
+        Debug.Log($"Abriendo cuento aleatorio de género {genero}");
+
+        // Cerrar paneles
+        panelGeneros.SetActive(false);
+        panelCuento.SetActive(true);
+        botonVolver.gameObject.SetActive(false);
+
+        // Subir scroll al inicio
+        ScrollRect scrollRect = panelCuento.GetComponentInChildren<ScrollRect>(true);
+        if (scrollRect != null)
+        {
+            Canvas.ForceUpdateCanvases();
+            scrollRect.verticalNormalizedPosition = 1f;
+        }
+
+        // Mostrar cuento
+        cuentosManager.MostrarCuento(cuento.texto, this);
+
+        // Opcional: marcar misión automáticamente al leer este cuento
+        misionesManager?.CompletarMision(MisionTipo.LeerCuentoGenero, genero);
+    }
+
 
 }

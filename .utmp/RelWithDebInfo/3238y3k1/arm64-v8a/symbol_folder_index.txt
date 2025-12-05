@@ -1,0 +1,1 @@
+C:\Users\Vale\Documents\Repositorios\Prototipo-PAEF\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\build\intermediates\cxx\RelWithDebInfo\3238y3k1\obj\arm64-v8a

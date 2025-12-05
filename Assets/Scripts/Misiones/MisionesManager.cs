@@ -178,9 +178,17 @@ public class MisionesManager : MonoBehaviour
         {
             Debug.Log($"Botón clickeado para misión: {mision.descripcion}");
             CerrarPanel();
-            gameManager.MostrarPanelGeneros();
-          
-        
+
+            if (mision.tipo == MisionTipo.LeerCuento)
+            {
+                // Misión general → abrir géneros como siempre
+                gameManager.MostrarPanelGeneros();
+            }
+            else if (mision.tipo == MisionTipo.LeerCuentoGenero)
+            {
+                // Misión de género → abrir cuento aleatorio DIRECTO
+                gameManager.LeerCuentoAleatorioPorGenero(mision.parametro);
+            }
         };
     }
 
