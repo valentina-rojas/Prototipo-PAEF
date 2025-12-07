@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
 
     [Header("UI principales")]
     [SerializeField] public Button botonAlimentar;
+    [SerializeField] public Button botonLecturaAleatoria; 
     [SerializeField] private Button botonVolver;
     [SerializeField] private GameObject panelGeneros;
     [SerializeField] private GameObject panelCuento;
@@ -58,15 +59,14 @@ public class GameManager : MonoBehaviour
 
     private int experienciaActual = 0;
     private int nivelActual = 1;
-
-    private enum FaseSeleccion { Genero, Escenario, Personaje, Motivacion, Extension }
+    private enum FaseSeleccion { Genero, Escenario, Personaje }
     private FaseSeleccion faseActual;
 
     private string generoSeleccionado;
     private string escenarioSeleccionado;
     private string personajeSeleccionado;
-    private string motivacionSeleccionada;
-    private string extensionSeleccionada;
+    private string motivacionAleatoria; 
+    private string extensionAleatoria;  
 
     private List<Button> botones => new List<Button> { boton1, boton2, boton3 };
 
@@ -96,6 +96,13 @@ public class GameManager : MonoBehaviour
         ActualizarMascota();
 
         botonAlimentar.onClick.AddListener(MostrarPanelGeneros);
+        
+        if (botonLecturaAleatoria != null)
+        {
+            botonLecturaAleatoria.onClick.RemoveAllListeners();
+            botonLecturaAleatoria.onClick.AddListener(IniciarLecturaCompletamenteAleatoria);
+        }
+        
         if (botonVolver != null) botonVolver.gameObject.SetActive(false);
 
         if (botonVolverMenu != null)
@@ -109,7 +116,6 @@ public class GameManager : MonoBehaviour
         {
             botonCerrarJuego.onClick.RemoveAllListeners();
             botonCerrarJuego.onClick.AddListener(MostrarConfirmacionSalir);
-           // botonCerrarJuego.gameObject.SetActive(true);
         }
 
         panelConfirmarVolver?.SetActive(false);
@@ -122,7 +128,57 @@ public class GameManager : MonoBehaviour
         if (botonSalirNo != null) botonSalirNo.onClick.AddListener(CerrarPanelSalir);
     }
 
+    public void IniciarLecturaCompletamenteAleatoria()
+    {
+        Debug.Log("Iniciando lectura completamente aleatoria");
+        
+        if (basesCuentos == null || basesCuentos.Length == 0)
+        {
+            Debug.LogError("No hay base de cuentos cargada");
+            return;
+        }
 
+        var todosLosCuentos = basesCuentos
+            .Where(b => b != null && b.cuentos != null)
+            .SelectMany(b => b.cuentos)
+            .Where(c => c != null)
+            .ToList();
+
+        if (todosLosCuentos.Count == 0)
+        {
+            Debug.LogError("No hay cuentos disponibles");
+            return;
+        }
+
+        var cuentoAleatorio = todosLosCuentos[Random.Range(0, todosLosCuentos.Count)];
+
+        generoSeleccionado = cuentoAleatorio.genero;
+        escenarioSeleccionado = cuentoAleatorio.escenario;
+        personajeSeleccionado = cuentoAleatorio.personaje;
+        motivacionAleatoria = cuentoAleatorio.motivacion;
+        extensionAleatoria = cuentoAleatorio.extension;
+
+        Debug.Log($"Cuento aleatorio seleccionado: {cuentoAleatorio.genero} - {cuentoAleatorio.personaje} - {cuentoAleatorio.motivacion} - {cuentoAleatorio.extension}");
+
+        panelGeneros.SetActive(false);
+        panelCuento.SetActive(true);
+        botonVolver.gameObject.SetActive(false);
+        botonVolverMenu.gameObject.SetActive(true);
+
+        ScrollRect scrollRect = panelCuento.GetComponentInChildren<ScrollRect>(true);
+        if (scrollRect != null)
+        {
+            Canvas.ForceUpdateCanvases();
+            scrollRect.verticalNormalizedPosition = 1f;
+        }
+
+        cuentosManager.MostrarCuento(cuentoAleatorio.texto, this);
+
+        misionesManager?.CompletarMision(MisionTipo.LeerCuento);
+        misionesManager?.CompletarMision(MisionTipo.LeerCuentoGenero, generoSeleccionado);
+        
+        Debug.Log("Lectura aleatoria iniciada correctamente");
+    }
 
     private void MostrarConfirmacionVolver()
     {
@@ -161,8 +217,6 @@ public class GameManager : MonoBehaviour
         #endif
     }
 
-   
-
     private void CargarBaseDeCuentosDesdeJSON()
     {
         if (baseDeCuentosJSON == null)
@@ -187,10 +241,11 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Base de cuentos cargada ({baseRuntime.cuentos.Length} cuentos)");
     }
 
-    #region Selección de cuentos
+    #region Selección de cuentos - Versión simplificada (3 pasos)
     public void MostrarPanelGeneros()
     {
         botonAlimentar.interactable = false;
+        botonLecturaAleatoria.interactable = false; 
         botonVolverMenu.gameObject.SetActive(true);
         panelGeneros.SetActive(true);
         MostrarOpcionesGenero();
@@ -215,6 +270,7 @@ public class GameManager : MonoBehaviour
             .Select(c => c.genero)
             .Where(s => !string.IsNullOrEmpty(s))
             .Distinct()
+            .OrderBy(g => g)
             .ToList();
 
         Debug.Log($"Géneros disponibles: {generos.Count}");
@@ -242,6 +298,7 @@ public class GameManager : MonoBehaviour
             .Select(c => c.escenario)
             .Where(s => !string.IsNullOrEmpty(s))
             .Distinct()
+            .OrderBy(e => e)
             .ToList();
 
         ConfigurarBotones(escenarios, opcion =>
@@ -267,54 +324,13 @@ public class GameManager : MonoBehaviour
             .Select(c => c.personaje)
             .Where(s => !string.IsNullOrEmpty(s))
             .Distinct()
+            .OrderBy(p => p)
             .ToList();
 
         ConfigurarBotones(personajes, opcion =>
         {
             personajeSeleccionado = opcion;
-            MostrarOpcionesMotivacion();
-        });
-    }
-
-    private void MostrarOpcionesMotivacion()
-    {
-        faseActual = FaseSeleccion.Motivacion;
-        botonVolver.gameObject.SetActive(true);
-        tituloSeleccionTexto.text = "Seleccioná una motivación";
-
-        botonVolver.onClick.RemoveAllListeners();
-        botonVolver.onClick.AddListener(() => MostrarOpcionesPersonaje());
-
-        var motivaciones = basesCuentos
-            .Where(b => b != null && b.cuentos != null)
-            .SelectMany(b => b.cuentos)
-            .Where(c => c != null && c.genero == generoSeleccionado && c.escenario == escenarioSeleccionado && c.personaje == personajeSeleccionado)
-            .Select(c => c.motivacion)
-            .Where(s => !string.IsNullOrEmpty(s))
-            .Distinct()
-            .ToList();
-
-        ConfigurarBotones(motivaciones, opcion =>
-        {
-            motivacionSeleccionada = opcion;
-            MostrarOpcionesExtension();
-        });
-    }
-
-    private void MostrarOpcionesExtension()
-    {
-        faseActual = FaseSeleccion.Extension;
-        botonVolver.gameObject.SetActive(true);
-        tituloSeleccionTexto.text = "Seleccioná la extensión del cuento";
-
-        botonVolver.onClick.RemoveAllListeners();
-        botonVolver.onClick.AddListener(() => MostrarOpcionesMotivacion());
-
-        var extensiones = new List<string> { "Corto", "Mediano", "Largo" };
-        ConfigurarBotones(extensiones, opcion =>
-        {
-            extensionSeleccionada = opcion;
-            IniciarLecturaSeleccionada();
+            IniciarLecturaSeleccionada(); 
         });
     }
 
@@ -343,6 +359,7 @@ public class GameManager : MonoBehaviour
         panelGeneros.SetActive(false);
         panelCuento.SetActive(true);
         botonVolver.gameObject.SetActive(false);
+        botonVolverMenu.gameObject.SetActive(true);
 
         ScrollRect scrollRect = panelCuento.GetComponentInChildren<ScrollRect>(true);
         if (scrollRect != null)
@@ -351,31 +368,78 @@ public class GameManager : MonoBehaviour
             scrollRect.verticalNormalizedPosition = 1f;
         }
 
-        var cuentoFinal = basesCuentos
+        var cuentosDisponibles = basesCuentos
             .Where(b => b != null && b.cuentos != null)
             .SelectMany(b => b.cuentos)
-            .FirstOrDefault(c =>
+            .Where(c =>
                 c != null &&
                 c.genero == generoSeleccionado &&
                 c.escenario == escenarioSeleccionado &&
-                c.personaje == personajeSeleccionado &&
-                c.motivacion == motivacionSeleccionada &&
-                c.extension == extensionSeleccionada
-            );
+                c.personaje == personajeSeleccionado
+            )
+            .ToList();
 
-        if (cuentoFinal != null)
+        if (cuentosDisponibles.Count == 0)
         {
-            Debug.Log($"Mostrando cuento: {cuentoFinal.genero} - {cuentoFinal.personaje}");
-            cuentosManager.MostrarCuento(cuentoFinal.texto, this);
+            Debug.LogError($"No se encontraron cuentos con los criterios seleccionados");
+            botonAlimentar.interactable = true;
+            botonLecturaAleatoria.interactable = true;
+            panelCuento.SetActive(false);
+            return;
+        }
+
+        // Aleatorizar motivación y extensión
+        var motivaciones = cuentosDisponibles
+            .Select(c => c.motivacion)
+            .Where(m => !string.IsNullOrEmpty(m))
+            .Distinct()
+            .ToList();
+        
+        motivacionAleatoria = motivaciones.Count > 0 
+            ? motivaciones[Random.Range(0, motivaciones.Count)]
+            : cuentosDisponibles[0].motivacion;
+
+        var extensiones = cuentosDisponibles
+            .Where(c => c.motivacion == motivacionAleatoria)
+            .Select(c => c.extension)
+            .Where(e => !string.IsNullOrEmpty(e))
+            .Distinct()
+            .ToList();
+
+        if (extensiones.Count > 0)
+        {
+            if (extensiones.Contains("Corto"))
+                extensionAleatoria = "Corto";
+            else if (extensiones.Contains("Mediano"))
+                extensionAleatoria = "Mediano";
+            else
+                extensionAleatoria = extensiones[Random.Range(0, extensiones.Count)];
         }
         else
         {
-            Debug.LogError($"No se encontró cuento con los criterios seleccionados");
-            botonAlimentar.interactable = true;
-            panelCuento.SetActive(false);
+            extensionAleatoria = "Corto"; 
         }
-    }
 
+        var cuentoFinal = cuentosDisponibles.FirstOrDefault(c =>
+            c.motivacion == motivacionAleatoria &&
+            c.extension == extensionAleatoria
+        );
+
+        if (cuentoFinal == null)
+        {
+            cuentoFinal = cuentosDisponibles[0];
+            motivacionAleatoria = cuentoFinal.motivacion;
+            extensionAleatoria = cuentoFinal.extension;
+            Debug.Log($"No se encontró combinación exacta. Usando primer cuento disponible: {motivacionAleatoria} - {extensionAleatoria}");
+        }
+        else
+        {
+            Debug.Log($"Cuento seleccionado: {motivacionAleatoria} - {extensionAleatoria}");
+        }
+
+        Debug.Log($"Mostrando cuento: {cuentoFinal.genero} - {cuentoFinal.personaje} - {cuentoFinal.motivacion} - {cuentoFinal.extension}");
+        cuentosManager.MostrarCuento(cuentoFinal.texto, this);
+    }
     #endregion
 
     #region Evaluaciones, XP y Mascota
@@ -391,14 +455,15 @@ public class GameManager : MonoBehaviour
                 c.genero == generoSeleccionado &&
                 c.escenario == escenarioSeleccionado &&
                 c.personaje == personajeSeleccionado &&
-                c.motivacion == motivacionSeleccionada &&
-                c.extension == extensionSeleccionada
+                c.motivacion == motivacionAleatoria &&
+                c.extension == extensionAleatoria
             );
 
         if (cuentoFinal == null)
         {
             Debug.LogError("No se pudo encontrar el cuento para las evaluaciones");
             botonAlimentar.interactable = true;
+            botonLecturaAleatoria.interactable = true;
             return;
         }
 
@@ -418,6 +483,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("No hay evaluaciones disponibles para este cuento");
             botonAlimentar.interactable = true;
+            botonLecturaAleatoria.interactable = true;
             return;
         }
 
@@ -499,10 +565,10 @@ public class GameManager : MonoBehaviour
         panelOrdenarFrase.SetActive(false);
 
         botonAlimentar.interactable = true;
+        botonLecturaAleatoria.interactable = true; // Reactivar el botón aleatorio
         botonVolverMenu.gameObject.SetActive(false);
     }
 
-    
     public void LeerCuentoAleatorioPorGenero(string genero)
     {
         if (basesCuentos == null || basesCuentos.Length == 0)
@@ -534,6 +600,7 @@ public class GameManager : MonoBehaviour
         panelGeneros.SetActive(false);
         panelCuento.SetActive(true);
         botonVolver.gameObject.SetActive(false);
+        botonVolverMenu.gameObject.SetActive(true);
 
         // Subir scroll al inicio
         ScrollRect scrollRect = panelCuento.GetComponentInChildren<ScrollRect>(true);
@@ -549,6 +616,4 @@ public class GameManager : MonoBehaviour
         // Opcional: marcar misión automáticamente al leer este cuento
         misionesManager?.CompletarMision(MisionTipo.LeerCuentoGenero, genero);
     }
-
-
 }
