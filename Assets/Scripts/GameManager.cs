@@ -594,6 +594,8 @@ public class GameManager : MonoBehaviour
         // Seleccionar uno al azar
         var cuento = cuentosDelGenero[Random.Range(0, cuentosDelGenero.Count)];
 
+     
+
         Debug.Log($"Abriendo cuento aleatorio de género {genero}");
 
         // Cerrar paneles
@@ -616,4 +618,37 @@ public class GameManager : MonoBehaviour
         // Opcional: marcar misión automáticamente al leer este cuento
         misionesManager?.CompletarMision(MisionTipo.LeerCuentoGenero, genero);
     }
+
+    public void IniciarCuentoDesdeMision(string genero)
+    {
+        // Buscar un cuento aleatorio del género pedido por la misión
+        var cuento = basesCuentos
+            .SelectMany(b => b.cuentos)
+            .Where(c => c.genero == genero)
+            .OrderBy(_ => Random.value)
+            .FirstOrDefault();
+
+        if (cuento == null)
+        {
+            Debug.LogError("No se encontró cuento para misión de género: " + genero);
+            return;
+        }
+
+        // Guardar variables internas (NECESARIO PARA FINALIZAR LECTURA)
+        generoSeleccionado = cuento.genero;
+        escenarioSeleccionado = cuento.escenario;
+        personajeSeleccionado = cuento.personaje;
+        motivacionAleatoria = cuento.motivacion;
+        extensionAleatoria = cuento.extension;
+
+        // Mostrar panel del cuento
+        panelCuento.SetActive(true);
+        panelGeneros.SetActive(false);
+
+        botonVolverMenu.gameObject.SetActive(true);
+
+        // Mostrar texto del cuento
+        cuentosManager.MostrarCuento(cuento.texto, this);
+    }
+
 }

@@ -181,13 +181,13 @@ public class MisionesManager : MonoBehaviour
 
             if (mision.tipo == MisionTipo.LeerCuento)
             {
-                // Misión general → abrir géneros como siempre
-                gameManager.MostrarPanelGeneros();
+                // Misión general → abrir cuento aleatorio
+                gameManager.IniciarLecturaCompletamenteAleatoria();
             }
             else if (mision.tipo == MisionTipo.LeerCuentoGenero)
             {
                 // Misión de género → abrir cuento aleatorio DIRECTO
-                gameManager.LeerCuentoAleatorioPorGenero(mision.parametro);
+                gameManager.IniciarCuentoDesdeMision(mision.parametro);
             }
         };
     }
