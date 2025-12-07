@@ -122,6 +122,7 @@ public class OrdenarFrasesManager : MonoBehaviour
 
         if (correcto)
         {
+            AudioManager.instance.sonidoRespuestaCorrecta.Play();
             feedbackTexto.text = "¡Correcto!";
             feedbackTexto.color = Color.green;
             gameManager.GanarExperiencia(1);
@@ -137,6 +138,7 @@ public class OrdenarFrasesManager : MonoBehaviour
         }
         else
         {
+            AudioManager.instance.sonidoRespuestaIncorrecta.Play();
             feedbackTexto.text = "Incorrecto. ¡Intentá de nuevo!";
             feedbackTexto.color = Color.red;
 

@@ -108,30 +108,46 @@ public class CuestionarioManager : MonoBehaviour
         foreach (var btn in botonesOpciones)
             btn.interactable = false;
 
+        // --- RESPUESTA CORRECTA ---
         if (seleccion == p.respuestaCorrecta)
         {
+            AudioManager.instance.sonidoRespuestaCorrecta.Play();
             feedbackTexto.text = "¡Correcto!";
             feedbackTexto.color = Color.green;
 
-            Button btnCorrecto = botonesOpciones.FirstOrDefault(b => 
+            Button btnCorrecto = botonesOpciones.FirstOrDefault(b =>
                 b.GetComponentInChildren<TMP_Text>().text.Trim() == p.opciones[p.respuestaCorrecta].Trim());
+
             if (btnCorrecto != null)
+            {
                 btnCorrecto.GetComponent<Image>().color = verdeClarito;
+                StartCoroutine(VibrarBoton(btnCorrecto.GetComponent<RectTransform>(), 10f, 0.15f));
+            }
 
             gameManager.GanarExperiencia(1);
-            if (botonVolverMenu != null) botonVolverMenu.gameObject.SetActive(true);
+
+            if (botonVolverMenu != null)
+                botonVolverMenu.gameObject.SetActive(true);
         }
         else
         {
+            // --- RESPUESTA INCORRECTA ---
+
+            AudioManager.instance.sonidoRespuestaIncorrecta.Play();
             feedbackTexto.text = "Incorrecto. ¡Intentá de nuevo!";
             feedbackTexto.color = Color.red;
 
             Button btnSeleccionado = botonesOpciones.FirstOrDefault(b =>
                 b.GetComponentInChildren<TMP_Text>().text.Trim() == p.opciones[seleccion].Trim());
-            if (btnSeleccionado != null)
-                btnSeleccionado.GetComponent<Image>().color = rojoClarito;
 
-            if (botonReintentar != null) botonReintentar.gameObject.SetActive(true);
+            if (btnSeleccionado != null)
+            {
+                btnSeleccionado.GetComponent<Image>().color = rojoClarito;
+                StartCoroutine(VibrarBoton(btnSeleccionado.GetComponent<RectTransform>(), 12f, 0.18f));
+            }
+
+            if (botonReintentar != null)
+                botonReintentar.gameObject.SetActive(true);
         }
     }
 
@@ -144,5 +160,23 @@ public class CuestionarioManager : MonoBehaviour
         }
 
         feedbackTexto.text = "";
+    }
+
+
+    private System.Collections.IEnumerator VibrarBoton(RectTransform btn, float intensidad = 10f, float duracion = 0.15f)
+    {
+        Vector3 posOriginal = btn.anchoredPosition;
+        float tiempo = 0f;
+
+        while (tiempo < duracion)
+        {
+            float x = Random.Range(-intensidad, intensidad);
+            btn.anchoredPosition = posOriginal + new Vector3(x, 0, 0);
+
+            tiempo += Time.deltaTime;
+            yield return null;
+        }
+
+        btn.anchoredPosition = posOriginal;
     }
 }

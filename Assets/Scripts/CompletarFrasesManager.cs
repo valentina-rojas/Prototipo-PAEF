@@ -42,6 +42,7 @@ public class CompletarFrasesManager : MonoBehaviour
     public void MostrarFrase(FraseIncompleta frase)
     {
         if (frase == null) return;
+
         fraseActual = frase;
         fraseTexto.text = frase.frase;
         feedbackTexto.text = "";
@@ -55,10 +56,12 @@ public class CompletarFrasesManager : MonoBehaviour
             {
                 string palabra = opcionesMezcladas[index];
                 botonesOpciones[index].GetComponentInChildren<TMP_Text>().text = palabra;
-                botonesOpciones[index].onClick.RemoveAllListeners();
-                botonesOpciones[index].onClick.AddListener(() => Verificar(palabra, botonesOpciones[index]));
-                botonesOpciones[index].gameObject.SetActive(true);
 
+                botonesOpciones[index].onClick.RemoveAllListeners();
+                botonesOpciones[index].onClick.AddListener(() =>
+                    Verificar(palabra, botonesOpciones[index]));
+
+                botonesOpciones[index].gameObject.SetActive(true);
                 botonesOpciones[index].interactable = true;
                 botonesOpciones[index].GetComponent<Image>().color = Color.white;
             }
@@ -80,23 +83,46 @@ public class CompletarFrasesManager : MonoBehaviour
         foreach (Button b in botonesOpciones)
             b.interactable = false;
 
+        // ===============================
+        //      RESPUESTA CORRECTA
+        // ===============================
         if (palabra == fraseActual.respuestaCorrecta)
         {
+            AudioManager.instance.sonidoRespuestaCorrecta.Play();
+
             feedbackTexto.text = "¡Correcto!";
             feedbackTexto.color = Color.green;
+
             botonSeleccionado.GetComponent<Image>().color = verdeClarito;
+
+            StartCoroutine(VibrarBoton(
+                botonSeleccionado.GetComponent<RectTransform>(),
+                10f, 0.15f));
 
             gameManager.GanarExperiencia(1);
 
-            if (botonVolverMenu != null) botonVolverMenu.gameObject.SetActive(true);
+            if (botonVolverMenu != null)
+                botonVolverMenu.gameObject.SetActive(true);
         }
-        else 
+        else
         {
+            // ===============================
+            //     RESPUESTA INCORRECTA
+            // ===============================
+
+            AudioManager.instance.sonidoRespuestaIncorrecta.Play();
+
             feedbackTexto.text = "Incorrecto. ¡Intentá de nuevo!";
             feedbackTexto.color = Color.red;
+
             botonSeleccionado.GetComponent<Image>().color = rojoClarito;
 
-            if (botonReintentar != null) botonReintentar.gameObject.SetActive(true);
+            StartCoroutine(VibrarBoton(
+                botonSeleccionado.GetComponent<RectTransform>(),
+                12f, 0.18f));
+
+            if (botonReintentar != null)
+                botonReintentar.gameObject.SetActive(true);
         }
     }
 
@@ -120,5 +146,22 @@ public class CompletarFrasesManager : MonoBehaviour
             (copia[i], copia[randomIndex]) = (copia[randomIndex], copia[i]);
         }
         return copia;
+    }
+
+    private System.Collections.IEnumerator VibrarBoton(RectTransform btn, float intensidad = 10f, float duracion = 0.15f)
+    {
+        Vector3 posOriginal = btn.anchoredPosition;
+        float tiempo = 0f;
+
+        while (tiempo < duracion)
+        {
+            float x = Random.Range(-intensidad, intensidad);
+            btn.anchoredPosition = posOriginal + new Vector3(x, 0, 0);
+
+            tiempo += Time.deltaTime;
+            yield return null;
+        }
+
+        btn.anchoredPosition = posOriginal;
     }
 }
