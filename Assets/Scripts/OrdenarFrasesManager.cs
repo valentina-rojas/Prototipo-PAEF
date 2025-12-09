@@ -55,10 +55,23 @@ public class OrdenarFrasesManager : MonoBehaviour
         frasesActuales.AddRange(ordenar.frasesCorrectas);
         frasesActuales = Mezclar(frasesActuales);
 
-        foreach (string frase in frasesActuales)
+        for (int i = 0; i < frasesActuales.Count; i++)
         {
-            GameObject btnGO = Instantiate(prefabFrase, contenedorFrases);
-            btnGO.GetComponentInChildren<TMP_Text>().text = frase;
+            Transform slot = contenedorFrases.GetChild(i);
+
+            GameObject btnGO = Instantiate(prefabFrase, slot);
+
+            // Forzar posición dentro del slot
+            RectTransform rt = btnGO.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero;
+            rt.localPosition = Vector3.zero;
+            rt.localScale = Vector3.one;
+
+            btnGO.GetComponentInChildren<TMP_Text>().text = frasesActuales[i];
+
             botonesFrases.Add(btnGO);
         }
 
@@ -83,27 +96,31 @@ public class OrdenarFrasesManager : MonoBehaviour
         float distanciaMin = float.MaxValue;
         Transform masCercano = contenedorFrases.GetChild(0);
 
-        foreach (Transform t in contenedorFrases)
+        foreach (Transform slot in contenedorFrases)
         {
-            float distancia = Mathf.Abs(arrastrado.position.y - t.position.y);
+            float distancia = Vector2.Distance(arrastrado.position, slot.position);
             if (distancia < distanciaMin)
             {
                 distanciaMin = distancia;
-                masCercano = t;
+                masCercano = slot;
             }
         }
 
         return masCercano;
     }
 
+
     public void ReordenarFrases()
     {
         botonesFrases.Clear();
-        foreach (Transform t in contenedorFrases)
+
+        foreach (Transform slot in contenedorFrases)
         {
-            botonesFrases.Add(t.gameObject);
+            if (slot.childCount > 0)
+                botonesFrases.Add(slot.GetChild(0).gameObject);
         }
     }
+
 
     void Verificar(string[] ordenCorrecto)
     {

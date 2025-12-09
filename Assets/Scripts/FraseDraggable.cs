@@ -43,10 +43,24 @@ public class FraseDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         canvasGroup.blocksRaycasts = true;
         canvasGroup.alpha = 1f;
 
-        Transform nuevoPadre = manager.GetPosicionMasCercana(transform);
-        transform.SetParent(nuevoPadre.parent);
-        transform.SetSiblingIndex(nuevoPadre.GetSiblingIndex());
+        Transform slotCercano = manager.GetPosicionMasCercana(transform);
 
+        // si el slot ya tenía otra frase
+        if (slotCercano.childCount > 0)
+        {
+            Transform otraFrase = slotCercano.GetChild(0);
+
+            // intercambiar slots
+            otraFrase.SetParent(originalParent);
+            otraFrase.localPosition = Vector3.zero;
+        }
+
+        // colocar la frase arrastrada en el slot elegido
+        transform.SetParent(slotCercano);
+        transform.localPosition = Vector3.zero;
+
+        // actualizar lista interna
         manager.ReordenarFrases();
     }
+
 }
