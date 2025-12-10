@@ -1,0 +1,41 @@
+[33m90f9829[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m correcciòn boton de lectura random desactivado luego de las evaluaciones
+[33ma63422f[m se agregaron slots en ordenar frases
+[33m0c6f864[m animacion y efecto de sonido en botones
+[33ma9d1a78[m correccion en que las misiones lleven directamente a un cuento
+[33mab6c587[m se acorto el paso de selección y se agrego opción random
+[33mf5b9355[m confirmacion al volver al menu, mostrar barra de navegacion inferior en celulares, ir directo a un cuento en misiones de un genero
+[33m50b2eda[m correccion tamaño botones
+[33ma95e98f[m se mezclan las respuestas en el cuestionario
+[33m69fc592[m boton cerrar
+[33m323caa4[m boton cerrar
+[33m1db43fc[m correccion botones
+[33mf1b9faf[m se agregaron misiones y se actualizo base de datos
+[33m3567cc9[m correcion textos
+[33mc9d3c69[m apk con base de datos funcionando
+[33maa83b51[m correcciones referencias
+[33m9527244[m opcion reintentar en cuestionario
+[33mb23cda3[m reintentar completar y ordenar frases
+[33mda2d44e[m reemplazo de scroll view y títulos al seleccionar cuentos
+[33m50dbe3d[m correcciones UI
+[33mbd141ab[m reemplazo assets panel lectura
+[33m05f6413[m reemplazo de assets botones
+[33mb09d255[m correccion botones en ordenar frase
+[33m73a1a85[m metodo de evaluacion, drag and drop ordenar frases
+[33m48a106d[m metodo de evaluacion seleccionar palabra para completar frase
+[33ma669031[m evolución de la mascota
+[33md6c5cd6[m el .csv incluye las preguntas del cuestionario
+[33m1a81d48[m se cargaron el resto de cuentos y se cambiaron assets
+[33m5253f02[m carga de base de cuentos desde archivo csv
+[33mf853ceb[m base para variedad de cuentos
+[33mdd2cc57[m división de scripts
+[33md436bab[m cambio de scroll view por páginas
+[33m183ef60[m correcion margenes texto
+[33m9393e0e[m correccion visualizacion del scrollview
+[33m71cadac[m base configuracion del formato de texto (tamaño, interlineado, tipografia, alineacion)
+[33mf784b72[m correccion canvas
+[33mfb7f41b[m se agregaron las preguntas del cuestionario
+[33m3ef5609[m base interaccion/seleccion de cuento
+[33mf975106[m proyecto base
+[33mcb049c4[m proyecto base
+[33mee82974[m Create .gitignore
+[33m5fd942b[m Create README.md
