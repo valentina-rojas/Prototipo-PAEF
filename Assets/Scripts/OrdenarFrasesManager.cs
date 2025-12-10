@@ -27,6 +27,7 @@ public class OrdenarFrasesManager : MonoBehaviour
                 panelOrdenarFrase.SetActive(false);
                 gameManager.botonVolverMenu.gameObject.SetActive(false);
                 gameManager.botonAlimentar.interactable = true;
+                gameManager.botonLecturaAleatoria.interactable = true;
             });
         }
 

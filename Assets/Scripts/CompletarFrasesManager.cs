@@ -25,6 +25,7 @@ public class CompletarFrasesManager : MonoBehaviour
                 panelCompletarFrase.SetActive(false);
                 gameManager.botonVolverMenu.gameObject.SetActive(false);
                 gameManager.botonAlimentar.interactable = true;
+                gameManager.botonLecturaAleatoria.interactable = true;
             });
         }
 

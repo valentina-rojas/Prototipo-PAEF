@@ -565,7 +565,7 @@ public class GameManager : MonoBehaviour
         panelOrdenarFrase.SetActive(false);
 
         botonAlimentar.interactable = true;
-        botonLecturaAleatoria.interactable = true; // Reactivar el botón aleatorio
+        botonLecturaAleatoria.interactable = true; 
         botonVolverMenu.gameObject.SetActive(false);
     }
 
