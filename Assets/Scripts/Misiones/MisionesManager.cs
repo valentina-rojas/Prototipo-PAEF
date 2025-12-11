@@ -72,7 +72,7 @@ public class MisionesManager : MonoBehaviour
                 id = "leer_ciencia_ficcion",
                 descripcion = "Lee un cuento de Ciencia Ficción", 
                 tipo = MisionTipo.LeerCuentoGenero, 
-                parametro = "Ciencia Ficción", 
+                parametro = "Ciencia ficción", 
                 recompensaEXP = 10 
             },
             new Mision { 
@@ -189,7 +189,7 @@ public class MisionesManager : MonoBehaviour
                 // Misión de género → abrir cuento aleatorio DIRECTO
                 gameManager.IniciarCuentoDesdeMision(mision.parametro);
             }
-        };
+        }; 
     }
 
 
