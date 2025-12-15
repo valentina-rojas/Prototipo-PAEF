@@ -65,11 +65,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Animator mascotaAnimator;
     [SerializeField] private AnimationClip[] animacionesFase; 
     
-    // Variables de experiencia (siempre activas)
     private int experienciaActual = 0;
     private int nivelActual = 1;
-    
-    // Variables para guardar estado de la mascota
     private int nivelGuardado = 1;
     private bool necesitaActualizacion = true;
     
@@ -107,11 +104,10 @@ public class GameManager : MonoBehaviour
             barraExperiencia.value = experienciaActual;
         }
 
-        // Cargar datos guardados si existen
         CargarProgreso();
         ActualizarTextoExperiencia();
         
-        // Aplicar la evolución inicial basada en el nivel guardado
+        nivelActual = Mathf.Max(nivelActual, nivelGuardado);
         AplicarEvolucionSegunNivel();
 
         botonAlimentar.onClick.AddListener(MostrarPanelGeneros);
@@ -149,7 +145,6 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        // Verificar si el panel de mascota se reactivó y necesita actualización
         if (panelFondoMascota.activeSelf && necesitaActualizacion)
         {
             AplicarEvolucionSegunNivel();
@@ -160,10 +155,8 @@ public class GameManager : MonoBehaviour
     #region Sistema de guardado y carga de progreso
     private void CargarProgreso()
     {
-        // Si no hay datos guardados, usar los valores por defecto
         if (!PlayerPrefs.HasKey("Nivel"))
         {
-            // Intentar leer del texto si existe
             if (textoExperiencia != null && !string.IsNullOrEmpty(textoExperiencia.text))
             {
                 nivelGuardado = ExtraerNivelDelTexto(textoExperiencia.text);
@@ -174,16 +167,16 @@ public class GameManager : MonoBehaviour
                 nivelGuardado = 1;
                 experienciaActual = 0;
             }
+            nivelActual = nivelGuardado; 
         }
         else
         {
-            // Cargar datos guardados
             nivelGuardado = PlayerPrefs.GetInt("Nivel", 1);
             experienciaActual = PlayerPrefs.GetInt("Experiencia", 0);
-            nivelActual = nivelGuardado;
+            nivelActual = nivelGuardado; 
         }
         
-        Debug.Log($"Progreso cargado - Nivel: {nivelGuardado}, XP: {experienciaActual}");
+        Debug.Log($"Progreso cargado - Nivel: {nivelActual}, XP: {experienciaActual}");
     }
 
     private void GuardarProgreso()
@@ -200,38 +193,37 @@ public class GameManager : MonoBehaviour
     {
         if (!panelFondoMascota.activeSelf)
         {
-            // Marcar que necesita actualización cuando se reactive
             necesitaActualizacion = true;
             return;
         }
 
         Debug.Log($"Aplicando evolución - Nivel: {nivelActual}");
         
-        // Aplicar sprite de mascota
         if (mascotaSpriteRenderer != null && spritesEvolucion != null && spritesEvolucion.Length > 0)
         {
-            int spriteIndex = Mathf.Clamp(nivelActual - 1, 0, spritesEvolucion.Length - 1);
+            int faseVisual = Mathf.Min(nivelActual, 4); 
+            int spriteIndex = Mathf.Clamp(faseVisual - 1, 0, spritesEvolucion.Length - 1);
             mascotaSpriteRenderer.sprite = spritesEvolucion[spriteIndex];
-            Debug.Log($"Sprite aplicado: Fase {nivelActual} (índice {spriteIndex})");
+            Debug.Log($"Sprite aplicado: Nivel {nivelActual}, Fase Visual {faseVisual} (índice {spriteIndex})");
         }
         
-        // Aplicar plataforma
         if (plataformaImage != null && spritesPlataforma != null && spritesPlataforma.Length > 0)
         {
-            int plataformaIndex = Mathf.Clamp(nivelActual - 1, 0, spritesPlataforma.Length - 1);
+            int faseVisual = Mathf.Min(nivelActual, 4);
+            int plataformaIndex = Mathf.Clamp(faseVisual - 1, 0, spritesPlataforma.Length - 1);
             plataformaImage.sprite = spritesPlataforma[plataformaIndex];
             plataformaImage.SetNativeSize();
-            Debug.Log($"Plataforma aplicada: Fase {nivelActual}");
+            Debug.Log($"Plataforma aplicada: Nivel {nivelActual}, Fase Visual {faseVisual}");
         }
         
-        // Aplicar animación si corresponde
-        if (mascotaAnimator != null && animacionesFase != null && nivelActual >= 1 && nivelActual <= animacionesFase.Length)
+        if (mascotaAnimator != null && animacionesFase != null && animacionesFase.Length > 0)
         {
-            int indiceAnimacion = Mathf.Clamp(nivelActual - 1, 0, animacionesFase.Length - 1);
+            int faseVisual = Mathf.Min(nivelActual, 4);
+            int indiceAnimacion = Mathf.Clamp(faseVisual - 1, 0, animacionesFase.Length - 1);
             if (animacionesFase[indiceAnimacion] != null)
             {
                 mascotaAnimator.Play(animacionesFase[indiceAnimacion].name);
-                Debug.Log($"Animación aplicada: {animacionesFase[indiceAnimacion].name}");
+                Debug.Log($"Animación aplicada: {animacionesFase[indiceAnimacion].name} para fase {faseVisual}");
             }
         }
         
@@ -242,35 +234,31 @@ public class GameManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(texto)) return nivelActual;
         
-        // Formato esperado: "Nivel X - EXP Y/Z"
         Match match = Regex.Match(texto, @"Nivel\s+(\d+)");
         if (match.Success && int.TryParse(match.Groups[1].Value, out int nivel))
         {
-            return Mathf.Clamp(nivel, 1, 4);
+            return nivel;
         }
         
-        // Fallback: buscar cualquier número entre 1-4
-        match = Regex.Match(texto, @"\b([1-4])\b");
+        match = Regex.Match(texto, @"\b(\d+)\b");
         if (match.Success && int.TryParse(match.Groups[1].Value, out int num))
         {
             return num;
         }
         
-        return nivelActual; // Mantener nivel actual si no se detecta
+        return nivelActual;
     }
 
     private int ExtraerExperienciaDelTexto(string texto)
     {
         if (string.IsNullOrEmpty(texto)) return experienciaActual;
         
-        // Buscar formato: "EXP X/Y"
         Match match = Regex.Match(texto, @"EXP\s+(\d+)\s*/\s*\d+");
         if (match.Success && int.TryParse(match.Groups[1].Value, out int exp))
         {
             return exp;
         }
         
-        // Buscar solo el número antes de la barra
         match = Regex.Match(texto, @"(\d+)\s*/\s*\d+");
         if (match.Success && int.TryParse(match.Groups[1].Value, out int exp2))
         {
@@ -366,7 +354,6 @@ public class GameManager : MonoBehaviour
 
     private void ConfirmarSalir()
     {
-        // Guardar progreso antes de salir
         GuardarProgreso();
         panelConfirmarSalir.SetActive(false);
 
@@ -550,7 +537,6 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // Aleatorizar motivación y extensión
         var motivaciones = cuentosDisponibles
             .Select(c => c.motivacion)
             .Where(m => !string.IsNullOrEmpty(m))
@@ -627,7 +613,7 @@ public class GameManager : MonoBehaviour
             botonAlimentar.interactable = true;
             botonLecturaAleatoria.interactable = true;
             panelFondoMascota.SetActive(true);
-            AplicarEvolucionSegunNivel(); // Forzar actualización
+            AplicarEvolucionSegunNivel(); 
             return;
         }
 
@@ -650,7 +636,7 @@ public class GameManager : MonoBehaviour
             botonAlimentar.interactable = true;
             botonLecturaAleatoria.interactable = true;
             panelFondoMascota.SetActive(true);
-            AplicarEvolucionSegunNivel(); // Forzar actualización
+            AplicarEvolucionSegunNivel(); 
             return;
         }
 
@@ -706,12 +692,10 @@ public class GameManager : MonoBehaviour
 
         ActualizarTextoExperiencia();
         
-        // Guardar progreso y actualizar mascota
         GuardarProgreso();
         
         if (nivelPrevio != nivelActual)
         {
-            // Si subió de nivel, forzar actualización cuando vuelva al menú
             necesitaActualizacion = true;
         }
     }
@@ -732,7 +716,6 @@ public class GameManager : MonoBehaviour
         panelOrdenarFrase.SetActive(false);
         panelFondoMascota.SetActive(true);
 
-        // Actualizar evolución de la mascota cuando se vuelve al menú principal
         AplicarEvolucionSegunNivel();
 
         botonAlimentar.interactable = true;
