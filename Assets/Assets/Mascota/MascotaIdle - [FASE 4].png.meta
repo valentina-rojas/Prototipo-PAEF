@@ -1,0 +1,442 @@
+fileFormatVersion: 2
+guid: 2d2c08c1fa504a2498057d954c3efc21
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1463870181660059530
+    second: MascotaIdle - [FASE 4]_0
+  - first:
+      213: 2507361832144335293
+    second: MascotaIdle - [FASE 4]_1
+  - first:
+      213: 3692828031214092753
+    second: MascotaIdle - [FASE 4]_2
+  - first:
+      213: 8232644516626836000
+    second: MascotaIdle - [FASE 4]_3
+  - first:
+      213: -1148348000827889591
+    second: MascotaIdle - [FASE 4]_4
+  - first:
+      213: -5452748672343042195
+    second: MascotaIdle - [FASE 4]_5
+  - first:
+      213: 3824302290079142369
+    second: MascotaIdle - [FASE 4]_6
+  - first:
+      213: 1779472940682433637
+    second: MascotaIdle - [FASE 4]_7
+  - first:
+      213: -5751472941952684458
+    second: MascotaIdle - [FASE 4]_8
+  - first:
+      213: -243192711391751030
+    second: MascotaIdle - [FASE 4]_9
+  - first:
+      213: 7313604833249789577
+    second: MascotaIdle - [FASE 4]_10
+  - first:
+      213: 6462772377286255106
+    second: MascotaIdle - [FASE 4]_11
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 873
+        height: 1003
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a87622f9c26b05410800000000000000
+      internalID: 1463870181660059530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_1
+      rect:
+        serializedVersion: 2
+        x: 871
+        y: 39
+        width: 874
+        height: 967
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db1f5504d40fbc220800000000000000
+      internalID: 2507361832144335293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_2
+      rect:
+        serializedVersion: 2
+        x: 1743
+        y: 71
+        width: 874
+        height: 939
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d10f19678f8f3330800000000000000
+      internalID: 3692828031214092753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_3
+      rect:
+        serializedVersion: 2
+        x: 2615
+        y: 96
+        width: 874
+        height: 923
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02a2c97c19a304270800000000000000
+      internalID: 8232644516626836000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_4
+      rect:
+        serializedVersion: 2
+        x: 3487
+        y: 142
+        width: 874
+        height: 880
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 948af14d39f3010f0800000000000000
+      internalID: -1148348000827889591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_5
+      rect:
+        serializedVersion: 2
+        x: 4359
+        y: 155
+        width: 874
+        height: 868
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d67928fe8f1f354b0800000000000000
+      internalID: -5452748672343042195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_6
+      rect:
+        serializedVersion: 2
+        x: 5231
+        y: 155
+        width: 874
+        height: 867
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e151e9bba6a21530800000000000000
+      internalID: 3824302290079142369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_7
+      rect:
+        serializedVersion: 2
+        x: 6103
+        y: 142
+        width: 874
+        height: 877
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 564dbc42635f1b810800000000000000
+      internalID: 1779472940682433637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_8
+      rect:
+        serializedVersion: 2
+        x: 6975
+        y: 96
+        width: 874
+        height: 918
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65ea3a7f4d9ae20b0800000000000000
+      internalID: -5751472941952684458
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_9
+      rect:
+        serializedVersion: 2
+        x: 7847
+        y: 71
+        width: 874
+        height: 939
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a84d789748100acf0800000000000000
+      internalID: -243192711391751030
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_10
+      rect:
+        serializedVersion: 2
+        x: 8719
+        y: 39
+        width: 874
+        height: 967
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9860f61c8d42f7560800000000000000
+      internalID: 7313604833249789577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MascotaIdle - [FASE 4]_11
+      rect:
+        serializedVersion: 2
+        x: 9591
+        y: 0
+        width: 873
+        height: 1003
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 202aa546c3160b950800000000000000
+      internalID: 6462772377286255106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      MascotaIdle - [FASE 4]_0: 1463870181660059530
+      MascotaIdle - [FASE 4]_1: 2507361832144335293
+      MascotaIdle - [FASE 4]_10: 7313604833249789577
+      MascotaIdle - [FASE 4]_11: 6462772377286255106
+      MascotaIdle - [FASE 4]_2: 3692828031214092753
+      MascotaIdle - [FASE 4]_3: 8232644516626836000
+      MascotaIdle - [FASE 4]_4: -1148348000827889591
+      MascotaIdle - [FASE 4]_5: -5452748672343042195
+      MascotaIdle - [FASE 4]_6: 3824302290079142369
+      MascotaIdle - [FASE 4]_7: 1779472940682433637
+      MascotaIdle - [FASE 4]_8: -5751472941952684458
+      MascotaIdle - [FASE 4]_9: -243192711391751030
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

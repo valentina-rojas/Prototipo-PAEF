@@ -56,6 +56,8 @@ public class GameManager : MonoBehaviour
     [Header("Mascota y evolución")]
     [SerializeField] private Image mascotaImage;
     [SerializeField] private Sprite[] spritesEvolucion;
+    [SerializeField] private Image plataformaImage;
+    [SerializeField] private Sprite[] spritesPlataforma;
 
     private int experienciaActual = 0;
     private int nivelActual = 1;
@@ -552,6 +554,13 @@ public class GameManager : MonoBehaviour
             int spriteIndex = Mathf.Min(nivelActual - 1, spritesEvolucion.Length - 1);
             mascotaImage.sprite = spritesEvolucion[spriteIndex];
             mascotaImage.SetNativeSize();
+        }
+
+        if (plataformaImage != null && spritesPlataforma != null && spritesPlataforma.Length > 0)
+        {
+            int plataformaIndex = Mathf.Min(nivelActual - 1, spritesPlataforma.Length - 1);
+            plataformaImage.sprite = spritesPlataforma[plataformaIndex];
+            plataformaImage.SetNativeSize();
         }
     }
     #endregion
