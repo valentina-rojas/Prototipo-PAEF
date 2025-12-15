@@ -64,8 +64,15 @@ public class GameManager : MonoBehaviour
     [Header("Animaciones de mascota")]
     [SerializeField] private Animator mascotaAnimator;
     [SerializeField] private AnimationClip[] animacionesFase; 
+    
+    // Variables de experiencia (siempre activas)
     private int experienciaActual = 0;
     private int nivelActual = 1;
+    
+    // Variables para guardar estado de la mascota
+    private int nivelGuardado = 1;
+    private bool necesitaActualizacion = true;
+    
     private enum FaseSeleccion { Genero, Escenario, Personaje }
     private FaseSeleccion faseActual;
 
@@ -100,8 +107,12 @@ public class GameManager : MonoBehaviour
             barraExperiencia.value = experienciaActual;
         }
 
+        // Cargar datos guardados si existen
+        CargarProgreso();
         ActualizarTextoExperiencia();
-        SincronizarMascotaConTexto(); // Nueva sincronización inicial
+        
+        // Aplicar la evolución inicial basada en el nivel guardado
+        AplicarEvolucionSegunNivel();
 
         botonAlimentar.onClick.AddListener(MostrarPanelGeneros);
         
@@ -136,86 +147,66 @@ public class GameManager : MonoBehaviour
         if (botonSalirNo != null) botonSalirNo.onClick.AddListener(CerrarPanelSalir);
     }
 
-    #region Métodos de sincronización de mascota desde texto
-    private void SincronizarMascotaConTexto()
+    private void Update()
     {
-        if (textoExperiencia == null)
+        // Verificar si el panel de mascota se reactivó y necesita actualización
+        if (panelFondoMascota.activeSelf && necesitaActualizacion)
         {
-            Debug.LogError("TextoExperiencia no asignado");
-            return;
+            AplicarEvolucionSegunNivel();
+            necesitaActualizacion = false;
         }
+    }
 
-        string texto = textoExperiencia.text.Trim();
-        Debug.Log($"Sincronizando mascota con texto: {texto}");
-
-        // Intentar extraer el nivel del texto
-        int nivelDetectado = ExtraerNivelDelTexto(texto);
-        
-        if (nivelDetectado > 0)
+    #region Sistema de guardado y carga de progreso
+    private void CargarProgreso()
+    {
+        // Si no hay datos guardados, usar los valores por defecto
+        if (!PlayerPrefs.HasKey("Nivel"))
         {
-            // Si encontramos un nivel válido, sincronizar
-            if (nivelDetectado != nivelActual)
+            // Intentar leer del texto si existe
+            if (textoExperiencia != null && !string.IsNullOrEmpty(textoExperiencia.text))
             {
-                Debug.Log($"Cambiando nivel de {nivelActual} a {nivelDetectado} según texto");
-                nivelActual = nivelDetectado;
+                nivelGuardado = ExtraerNivelDelTexto(textoExperiencia.text);
+                experienciaActual = ExtraerExperienciaDelTexto(textoExperiencia.text);
             }
-            
-            // Aplicar sprite y animación según el nivel
-            AplicarSpriteYAnimacionSegunNivel();
+            else
+            {
+                nivelGuardado = 1;
+                experienciaActual = 0;
+            }
         }
         else
         {
-            Debug.LogWarning($"No se pudo detectar nivel en el texto: {texto}. Usando nivel actual: {nivelActual}");
-            AplicarSpriteYAnimacionSegunNivel();
+            // Cargar datos guardados
+            nivelGuardado = PlayerPrefs.GetInt("Nivel", 1);
+            experienciaActual = PlayerPrefs.GetInt("Experiencia", 0);
+            nivelActual = nivelGuardado;
         }
+        
+        Debug.Log($"Progreso cargado - Nivel: {nivelGuardado}, XP: {experienciaActual}");
     }
 
-    private int ExtraerNivelDelTexto(string texto)
+    private void GuardarProgreso()
     {
-        // Formato esperado: "Nivel X - EXP Y/Z"
-        
-        // Buscar "Nivel "
-        int indiceNivel = texto.IndexOf("Nivel ");
-        if (indiceNivel >= 0)
-        {
-            // Avanzar más allá de "Nivel "
-            int inicioNumero = indiceNivel + 6;
-            string numeroStr = "";
-            
-            // Recoger dígitos consecutivos
-            for (int i = inicioNumero; i < texto.Length; i++)
-            {
-                if (char.IsDigit(texto[i]))
-                {
-                    numeroStr += texto[i];
-                }
-                else if (numeroStr.Length > 0)
-                {
-                    // Si ya tenemos dígitos y encontramos un no-dígito, paramos
-                    break;
-                }
-            }
-            
-            if (!string.IsNullOrEmpty(numeroStr) && int.TryParse(numeroStr, out int nivel))
-            {
-                return Mathf.Clamp(nivel, 1, 4); // Asegurar que esté entre 1-4
-            }
-        }
-        
-        // Fallback: buscar cualquier número entre 1-4
-        foreach (Match match in System.Text.RegularExpressions.Regex.Matches(texto, @"\d+"))
-        {
-            if (int.TryParse(match.Value, out int numero) && numero >= 1 && numero <= 4)
-            {
-                return numero;
-            }
-        }
-        
-        return 0; // No se pudo detectar
+        PlayerPrefs.SetInt("Nivel", nivelActual);
+        PlayerPrefs.SetInt("Experiencia", experienciaActual);
+        PlayerPrefs.Save();
+        Debug.Log($"Progreso guardado - Nivel: {nivelActual}, XP: {experienciaActual}");
     }
+    #endregion
 
-    private void AplicarSpriteYAnimacionSegunNivel()
+    #region Sistema de evolución de mascota
+    private void AplicarEvolucionSegunNivel()
     {
+        if (!panelFondoMascota.activeSelf)
+        {
+            // Marcar que necesita actualización cuando se reactive
+            necesitaActualizacion = true;
+            return;
+        }
+
+        Debug.Log($"Aplicando evolución - Nivel: {nivelActual}");
+        
         // Aplicar sprite de mascota
         if (mascotaSpriteRenderer != null && spritesEvolucion != null && spritesEvolucion.Length > 0)
         {
@@ -230,13 +221,63 @@ public class GameManager : MonoBehaviour
             int plataformaIndex = Mathf.Clamp(nivelActual - 1, 0, spritesPlataforma.Length - 1);
             plataformaImage.sprite = spritesPlataforma[plataformaIndex];
             plataformaImage.SetNativeSize();
+            Debug.Log($"Plataforma aplicada: Fase {nivelActual}");
         }
         
         // Aplicar animación si corresponde
-        if (mascotaAnimator != null && nivelActual >= 2 && nivelActual <= 4)
+        if (mascotaAnimator != null && animacionesFase != null && nivelActual >= 1 && nivelActual <= animacionesFase.Length)
         {
-            ReproducirAnimacionPorFase();
+            int indiceAnimacion = Mathf.Clamp(nivelActual - 1, 0, animacionesFase.Length - 1);
+            if (animacionesFase[indiceAnimacion] != null)
+            {
+                mascotaAnimator.Play(animacionesFase[indiceAnimacion].name);
+                Debug.Log($"Animación aplicada: {animacionesFase[indiceAnimacion].name}");
+            }
         }
+        
+        nivelGuardado = nivelActual;
+    }
+
+    private int ExtraerNivelDelTexto(string texto)
+    {
+        if (string.IsNullOrEmpty(texto)) return nivelActual;
+        
+        // Formato esperado: "Nivel X - EXP Y/Z"
+        Match match = Regex.Match(texto, @"Nivel\s+(\d+)");
+        if (match.Success && int.TryParse(match.Groups[1].Value, out int nivel))
+        {
+            return Mathf.Clamp(nivel, 1, 4);
+        }
+        
+        // Fallback: buscar cualquier número entre 1-4
+        match = Regex.Match(texto, @"\b([1-4])\b");
+        if (match.Success && int.TryParse(match.Groups[1].Value, out int num))
+        {
+            return num;
+        }
+        
+        return nivelActual; // Mantener nivel actual si no se detecta
+    }
+
+    private int ExtraerExperienciaDelTexto(string texto)
+    {
+        if (string.IsNullOrEmpty(texto)) return experienciaActual;
+        
+        // Buscar formato: "EXP X/Y"
+        Match match = Regex.Match(texto, @"EXP\s+(\d+)\s*/\s*\d+");
+        if (match.Success && int.TryParse(match.Groups[1].Value, out int exp))
+        {
+            return exp;
+        }
+        
+        // Buscar solo el número antes de la barra
+        match = Regex.Match(texto, @"(\d+)\s*/\s*\d+");
+        if (match.Success && int.TryParse(match.Groups[1].Value, out int exp2))
+        {
+            return exp2;
+        }
+        
+        return experienciaActual;
     }
     #endregion
 
@@ -303,7 +344,6 @@ public class GameManager : MonoBehaviour
     {
         panelConfirmarVolver.SetActive(false);
         panelFondoMascota.SetActive(true);
-        SincronizarMascotaConTexto(); // Sincronizar al cerrar panel
     }
 
     private void ConfirmarVolver()
@@ -322,11 +362,12 @@ public class GameManager : MonoBehaviour
     {
         panelConfirmarSalir.SetActive(false);
         panelFondoMascota.SetActive(true);
-        SincronizarMascotaConTexto(); // Sincronizar al cerrar panel
     }
 
     private void ConfirmarSalir()
     {
+        // Guardar progreso antes de salir
+        GuardarProgreso();
         panelConfirmarSalir.SetActive(false);
 
         #if UNITY_EDITOR
@@ -586,7 +627,7 @@ public class GameManager : MonoBehaviour
             botonAlimentar.interactable = true;
             botonLecturaAleatoria.interactable = true;
             panelFondoMascota.SetActive(true);
-            SincronizarMascotaConTexto(); // Sincronizar si hay error
+            AplicarEvolucionSegunNivel(); // Forzar actualización
             return;
         }
 
@@ -609,7 +650,7 @@ public class GameManager : MonoBehaviour
             botonAlimentar.interactable = true;
             botonLecturaAleatoria.interactable = true;
             panelFondoMascota.SetActive(true);
-            SincronizarMascotaConTexto(); // Sincronizar si no hay evaluaciones
+            AplicarEvolucionSegunNivel(); // Forzar actualización
             return;
         }
 
@@ -657,33 +698,28 @@ public class GameManager : MonoBehaviour
         {
             experienciaActual -= experienciaPorNivel;
             nivelActual++;
+            Debug.Log($"¡Subió de nivel! Nuevo nivel: {nivelActual}");
         }
 
         if (barraExperiencia != null)
             barraExperiencia.value = experienciaActual;
 
         ActualizarTextoExperiencia();
-        AplicarSpriteYAnimacionSegunNivel(); // Actualizar mascota al ganar XP
+        
+        // Guardar progreso y actualizar mascota
+        GuardarProgreso();
+        
+        if (nivelPrevio != nivelActual)
+        {
+            // Si subió de nivel, forzar actualización cuando vuelva al menú
+            necesitaActualizacion = true;
+        }
     }
 
     private void ActualizarTextoExperiencia()
     {
         if (textoExperiencia != null)
             textoExperiencia.text = $"Nivel {nivelActual} - EXP {experienciaActual}/{experienciaPorNivel}";
-    }
-
-    private void ReproducirAnimacionPorFase()
-    {
-        if (animacionesFase != null && animacionesFase.Length > nivelActual - 1)
-        {
-            int indiceAnimacion = nivelActual - 1; 
-            
-            if (animacionesFase[indiceAnimacion] != null)
-            {
-                mascotaAnimator.Play(animacionesFase[indiceAnimacion].name);
-                Debug.Log($"Reproduciendo animación de fase {nivelActual}: {animacionesFase[indiceAnimacion].name}");
-            }
-        }
     }
     #endregion
 
@@ -696,8 +732,8 @@ public class GameManager : MonoBehaviour
         panelOrdenarFrase.SetActive(false);
         panelFondoMascota.SetActive(true);
 
-        // Sincronizar mascota basándose en el texto de experiencia
-        SincronizarMascotaConTexto();
+        // Actualizar evolución de la mascota cuando se vuelve al menú principal
+        AplicarEvolucionSegunNivel();
 
         botonAlimentar.interactable = true;
         botonLecturaAleatoria.interactable = true; 
@@ -784,16 +820,5 @@ public class GameManager : MonoBehaviour
 
         // Mostrar texto del cuento
         cuentosManager.MostrarCuento(cuento.texto, this);
-    }
-
-    // Método auxiliar para debug
-    private void DebugEstado()
-    {
-        Debug.Log($"=== DEBUG ===");
-        Debug.Log($"Nivel: {nivelActual}");
-        Debug.Log($"EXP: {experienciaActual}/{experienciaPorNivel}");
-        Debug.Log($"Texto EXP: {textoExperiencia?.text}");
-        Debug.Log($"Mascota activa: {mascotaSpriteRenderer?.gameObject.activeSelf}");
-        Debug.Log($"Sprite asignado: {mascotaSpriteRenderer?.sprite?.name ?? "null"}");
     }
 }
