@@ -21,11 +21,11 @@ public class CompletarFrasesManager : MonoBehaviour
             botonVolverMenu.gameObject.SetActive(false);
             botonVolverMenu.onClick.AddListener(() =>
             {
-                ReiniciarOpciones();
                 panelCompletarFrase.SetActive(false);
-                gameManager.botonVolverMenu.gameObject.SetActive(false);
-                gameManager.botonAlimentar.interactable = true;
-                gameManager.botonLecturaAleatoria.interactable = true;
+                if (gameManager != null)
+                {
+                    gameManager.VolverAlPrincipal();
+                }
             });
         }
 
@@ -84,9 +84,6 @@ public class CompletarFrasesManager : MonoBehaviour
         foreach (Button b in botonesOpciones)
             b.interactable = false;
 
-        // ===============================
-        //      RESPUESTA CORRECTA
-        // ===============================
         if (palabra == fraseActual.respuestaCorrecta)
         {
             AudioManager.instance.sonidoRespuestaCorrecta.Play();
@@ -100,17 +97,15 @@ public class CompletarFrasesManager : MonoBehaviour
                 botonSeleccionado.GetComponent<RectTransform>(),
                 10f, 0.15f));
 
-            gameManager.GanarExperiencia(1);
-
-            if (botonVolverMenu != null)
-                botonVolverMenu.gameObject.SetActive(true);
+            if (gameManager != null)
+            {
+                gameManager.GanarExperiencia(1);
+                
+                StartCoroutine(VolverAutomaticamente());
+            }
         }
         else
         {
-            // ===============================
-            //     RESPUESTA INCORRECTA
-            // ===============================
-
             AudioManager.instance.sonidoRespuestaIncorrecta.Play();
 
             feedbackTexto.text = "Incorrecto. ¡Intentá de nuevo!";
@@ -124,6 +119,17 @@ public class CompletarFrasesManager : MonoBehaviour
 
             if (botonReintentar != null)
                 botonReintentar.gameObject.SetActive(true);
+        }
+    }
+
+    private System.Collections.IEnumerator VolverAutomaticamente()
+    {
+        yield return new WaitForSeconds(2f);
+        
+        panelCompletarFrase.SetActive(false);
+        if (gameManager != null)
+        {
+            gameManager.VolverAlPrincipal();
         }
     }
 

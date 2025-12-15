@@ -24,10 +24,7 @@ public class CuestionarioManager : MonoBehaviour
             botonVolverMenu.gameObject.SetActive(false);
             botonVolverMenu.onClick.AddListener(() =>
             {
-                panelCuestionario.SetActive(false);
-                gameManager.botonVolverMenu.gameObject.SetActive(false);
-                gameManager.botonAlimentar.interactable = true;
-                gameManager.botonLecturaAleatoria.interactable = true;
+                CerrarCuestionarioYVolver();
             });
         }
 
@@ -39,6 +36,16 @@ public class CuestionarioManager : MonoBehaviour
                 ReiniciarOpciones();
                 botonReintentar.gameObject.SetActive(false);
             });
+        }
+    }
+
+    private void CerrarCuestionarioYVolver()
+    {
+        panelCuestionario.SetActive(false);
+        
+        if (gameManager != null)
+        {
+            gameManager.VolverAlPrincipal();
         }
     }
 
@@ -109,7 +116,6 @@ public class CuestionarioManager : MonoBehaviour
         foreach (var btn in botonesOpciones)
             btn.interactable = false;
 
-        // --- RESPUESTA CORRECTA ---
         if (seleccion == p.respuestaCorrecta)
         {
             AudioManager.instance.sonidoRespuestaCorrecta.Play();
@@ -129,11 +135,11 @@ public class CuestionarioManager : MonoBehaviour
 
             if (botonVolverMenu != null)
                 botonVolverMenu.gameObject.SetActive(true);
+            
+            StartCoroutine(AvanzarSiguientePregunta());
         }
         else
         {
-            // --- RESPUESTA INCORRECTA ---
-
             AudioManager.instance.sonidoRespuestaIncorrecta.Play();
             feedbackTexto.text = "Incorrecto. ¡Intentá de nuevo!";
             feedbackTexto.color = Color.red;
@@ -152,6 +158,14 @@ public class CuestionarioManager : MonoBehaviour
         }
     }
 
+    private System.Collections.IEnumerator AvanzarSiguientePregunta()
+    {
+        yield return new WaitForSeconds(1.5f); 
+        
+        indiceActual++;
+        MostrarPregunta();
+    }
+
     private void ReiniciarOpciones()
     {
         foreach (var btn in botonesOpciones)
@@ -162,7 +176,6 @@ public class CuestionarioManager : MonoBehaviour
 
         feedbackTexto.text = "";
     }
-
 
     private System.Collections.IEnumerator VibrarBoton(RectTransform btn, float intensidad = 10f, float duracion = 0.15f)
     {

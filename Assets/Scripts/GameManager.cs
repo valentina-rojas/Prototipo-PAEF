@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 public class GameManager : MonoBehaviour
 {
@@ -22,6 +23,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] public Button botonAlimentar;
     [SerializeField] public Button botonLecturaAleatoria; 
     [SerializeField] private Button botonVolver;
+    [SerializeField] public GameObject panelFondoMascota;
     [SerializeField] private GameObject panelGeneros;
     [SerializeField] private GameObject panelCuento;
     [SerializeField] private GameObject panelCuestionario;
@@ -54,11 +56,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int experienciaPorNivel = 5;
 
     [Header("Mascota y evolución")]
-    [SerializeField] private Image mascotaImage;
+    [SerializeField] private SpriteRenderer mascotaSpriteRenderer; 
     [SerializeField] private Sprite[] spritesEvolucion;
-    [SerializeField] private Image plataformaImage;
+    [SerializeField] private Image plataformaImage; 
     [SerializeField] private Sprite[] spritesPlataforma;
 
+    [Header("Animaciones de mascota")]
+    [SerializeField] private Animator mascotaAnimator;
+    [SerializeField] private AnimationClip[] animacionesFase; 
     private int experienciaActual = 0;
     private int nivelActual = 1;
     private enum FaseSeleccion { Genero, Escenario, Personaje }
@@ -87,7 +92,8 @@ public class GameManager : MonoBehaviour
         panelCuestionario.SetActive(false);
         panelCompletarFrase.SetActive(false);
         panelOrdenarFrase.SetActive(false);
-
+        panelFondoMascota.SetActive(true);
+        
         if (barraExperiencia != null)
         {
             barraExperiencia.maxValue = experienciaPorNivel;
@@ -95,7 +101,7 @@ public class GameManager : MonoBehaviour
         }
 
         ActualizarTextoExperiencia();
-        ActualizarMascota();
+        SincronizarMascotaConTexto(); // Nueva sincronización inicial
 
         botonAlimentar.onClick.AddListener(MostrarPanelGeneros);
         
@@ -129,6 +135,110 @@ public class GameManager : MonoBehaviour
         if (botonSalirSi != null) botonSalirSi.onClick.AddListener(ConfirmarSalir);
         if (botonSalirNo != null) botonSalirNo.onClick.AddListener(CerrarPanelSalir);
     }
+
+    #region Métodos de sincronización de mascota desde texto
+    private void SincronizarMascotaConTexto()
+    {
+        if (textoExperiencia == null)
+        {
+            Debug.LogError("TextoExperiencia no asignado");
+            return;
+        }
+
+        string texto = textoExperiencia.text.Trim();
+        Debug.Log($"Sincronizando mascota con texto: {texto}");
+
+        // Intentar extraer el nivel del texto
+        int nivelDetectado = ExtraerNivelDelTexto(texto);
+        
+        if (nivelDetectado > 0)
+        {
+            // Si encontramos un nivel válido, sincronizar
+            if (nivelDetectado != nivelActual)
+            {
+                Debug.Log($"Cambiando nivel de {nivelActual} a {nivelDetectado} según texto");
+                nivelActual = nivelDetectado;
+            }
+            
+            // Aplicar sprite y animación según el nivel
+            AplicarSpriteYAnimacionSegunNivel();
+        }
+        else
+        {
+            Debug.LogWarning($"No se pudo detectar nivel en el texto: {texto}. Usando nivel actual: {nivelActual}");
+            AplicarSpriteYAnimacionSegunNivel();
+        }
+    }
+
+    private int ExtraerNivelDelTexto(string texto)
+    {
+        // Formato esperado: "Nivel X - EXP Y/Z"
+        
+        // Buscar "Nivel "
+        int indiceNivel = texto.IndexOf("Nivel ");
+        if (indiceNivel >= 0)
+        {
+            // Avanzar más allá de "Nivel "
+            int inicioNumero = indiceNivel + 6;
+            string numeroStr = "";
+            
+            // Recoger dígitos consecutivos
+            for (int i = inicioNumero; i < texto.Length; i++)
+            {
+                if (char.IsDigit(texto[i]))
+                {
+                    numeroStr += texto[i];
+                }
+                else if (numeroStr.Length > 0)
+                {
+                    // Si ya tenemos dígitos y encontramos un no-dígito, paramos
+                    break;
+                }
+            }
+            
+            if (!string.IsNullOrEmpty(numeroStr) && int.TryParse(numeroStr, out int nivel))
+            {
+                return Mathf.Clamp(nivel, 1, 4); // Asegurar que esté entre 1-4
+            }
+        }
+        
+        // Fallback: buscar cualquier número entre 1-4
+        foreach (Match match in System.Text.RegularExpressions.Regex.Matches(texto, @"\d+"))
+        {
+            if (int.TryParse(match.Value, out int numero) && numero >= 1 && numero <= 4)
+            {
+                return numero;
+            }
+        }
+        
+        return 0; // No se pudo detectar
+    }
+
+    private void AplicarSpriteYAnimacionSegunNivel()
+    {
+        // Aplicar sprite de mascota
+        if (mascotaSpriteRenderer != null && spritesEvolucion != null && spritesEvolucion.Length > 0)
+        {
+            int spriteIndex = Mathf.Clamp(nivelActual - 1, 0, spritesEvolucion.Length - 1);
+            mascotaSpriteRenderer.sprite = spritesEvolucion[spriteIndex];
+            Debug.Log($"Sprite aplicado: Fase {nivelActual} (índice {spriteIndex})");
+        }
+        
+        // Aplicar plataforma
+        if (plataformaImage != null && spritesPlataforma != null && spritesPlataforma.Length > 0)
+        {
+            int plataformaIndex = Mathf.Clamp(nivelActual - 1, 0, spritesPlataforma.Length - 1);
+            plataformaImage.sprite = spritesPlataforma[plataformaIndex];
+            plataformaImage.SetNativeSize();
+        }
+        
+        // Aplicar animación si corresponde
+        if (mascotaAnimator != null && nivelActual >= 2 && nivelActual <= 4)
+        {
+            ReproducirAnimacionPorFase();
+        }
+    }
+    #endregion
 
     public void IniciarLecturaCompletamenteAleatoria()
     {
@@ -166,6 +276,7 @@ public class GameManager : MonoBehaviour
         panelCuento.SetActive(true);
         botonVolver.gameObject.SetActive(false);
         botonVolverMenu.gameObject.SetActive(true);
+        panelFondoMascota.SetActive(false);
 
         ScrollRect scrollRect = panelCuento.GetComponentInChildren<ScrollRect>(true);
         if (scrollRect != null)
@@ -185,11 +296,14 @@ public class GameManager : MonoBehaviour
     private void MostrarConfirmacionVolver()
     {
         panelConfirmarVolver.SetActive(true);
+        panelFondoMascota.SetActive(false);
     }
 
     private void CerrarPanelVolver()
     {
         panelConfirmarVolver.SetActive(false);
+        panelFondoMascota.SetActive(true);
+        SincronizarMascotaConTexto(); // Sincronizar al cerrar panel
     }
 
     private void ConfirmarVolver()
@@ -201,11 +315,14 @@ public class GameManager : MonoBehaviour
     private void MostrarConfirmacionSalir()
     {
         panelConfirmarSalir.SetActive(true);
+        panelFondoMascota.SetActive(false);
     }
 
     private void CerrarPanelSalir()
     {
         panelConfirmarSalir.SetActive(false);
+        panelFondoMascota.SetActive(true);
+        SincronizarMascotaConTexto(); // Sincronizar al cerrar panel
     }
 
     private void ConfirmarSalir()
@@ -248,6 +365,7 @@ public class GameManager : MonoBehaviour
     {
         botonAlimentar.interactable = false;
         botonLecturaAleatoria.interactable = false; 
+        panelFondoMascota.SetActive(false);
         botonVolverMenu.gameObject.SetActive(true);
         panelGeneros.SetActive(true);
         MostrarOpcionesGenero();
@@ -362,6 +480,7 @@ public class GameManager : MonoBehaviour
         panelCuento.SetActive(true);
         botonVolver.gameObject.SetActive(false);
         botonVolverMenu.gameObject.SetActive(true);
+        panelFondoMascota.SetActive(false);
 
         ScrollRect scrollRect = panelCuento.GetComponentInChildren<ScrollRect>(true);
         if (scrollRect != null)
@@ -466,12 +585,15 @@ public class GameManager : MonoBehaviour
             Debug.LogError("No se pudo encontrar el cuento para las evaluaciones");
             botonAlimentar.interactable = true;
             botonLecturaAleatoria.interactable = true;
+            panelFondoMascota.SetActive(true);
+            SincronizarMascotaConTexto(); // Sincronizar si hay error
             return;
         }
 
         panelCuestionario.SetActive(false);
         panelCompletarFrase.SetActive(false);
         panelOrdenarFrase.SetActive(false);
+        panelFondoMascota.SetActive(false);
 
         List<string> tiposDisponibles = new List<string>();
         if (cuentoFinal.cuestionario != null && cuentoFinal.cuestionario.Length > 0)
@@ -486,6 +608,8 @@ public class GameManager : MonoBehaviour
             Debug.Log("No hay evaluaciones disponibles para este cuento");
             botonAlimentar.interactable = true;
             botonLecturaAleatoria.interactable = true;
+            panelFondoMascota.SetActive(true);
+            SincronizarMascotaConTexto(); // Sincronizar si no hay evaluaciones
             return;
         }
 
@@ -526,19 +650,20 @@ public class GameManager : MonoBehaviour
 
     public void GanarExperiencia(int cantidad)
     {
+        int nivelPrevio = nivelActual;
         experienciaActual += cantidad;
 
         if (experienciaActual >= experienciaPorNivel)
         {
             experienciaActual -= experienciaPorNivel;
             nivelActual++;
-            ActualizarMascota();
         }
 
         if (barraExperiencia != null)
             barraExperiencia.value = experienciaActual;
 
         ActualizarTextoExperiencia();
+        AplicarSpriteYAnimacionSegunNivel(); // Actualizar mascota al ganar XP
     }
 
     private void ActualizarTextoExperiencia()
@@ -547,20 +672,17 @@ public class GameManager : MonoBehaviour
             textoExperiencia.text = $"Nivel {nivelActual} - EXP {experienciaActual}/{experienciaPorNivel}";
     }
 
-    private void ActualizarMascota()
+    private void ReproducirAnimacionPorFase()
     {
-        if (mascotaImage != null && spritesEvolucion != null && spritesEvolucion.Length > 0)
+        if (animacionesFase != null && animacionesFase.Length > nivelActual - 1)
         {
-            int spriteIndex = Mathf.Min(nivelActual - 1, spritesEvolucion.Length - 1);
-            mascotaImage.sprite = spritesEvolucion[spriteIndex];
-            mascotaImage.SetNativeSize();
-        }
-
-        if (plataformaImage != null && spritesPlataforma != null && spritesPlataforma.Length > 0)
-        {
-            int plataformaIndex = Mathf.Min(nivelActual - 1, spritesPlataforma.Length - 1);
-            plataformaImage.sprite = spritesPlataforma[plataformaIndex];
-            plataformaImage.SetNativeSize();
+            int indiceAnimacion = nivelActual - 1; 
+            
+            if (animacionesFase[indiceAnimacion] != null)
+            {
+                mascotaAnimator.Play(animacionesFase[indiceAnimacion].name);
+                Debug.Log($"Reproduciendo animación de fase {nivelActual}: {animacionesFase[indiceAnimacion].name}");
+            }
         }
     }
     #endregion
@@ -572,6 +694,10 @@ public class GameManager : MonoBehaviour
         panelCuestionario.SetActive(false);
         panelCompletarFrase.SetActive(false);
         panelOrdenarFrase.SetActive(false);
+        panelFondoMascota.SetActive(true);
+
+        // Sincronizar mascota basándose en el texto de experiencia
+        SincronizarMascotaConTexto();
 
         botonAlimentar.interactable = true;
         botonLecturaAleatoria.interactable = true; 
@@ -603,8 +729,6 @@ public class GameManager : MonoBehaviour
         // Seleccionar uno al azar
         var cuento = cuentosDelGenero[Random.Range(0, cuentosDelGenero.Count)];
 
-     
-
         Debug.Log($"Abriendo cuento aleatorio de género {genero}");
 
         // Cerrar paneles
@@ -612,7 +736,8 @@ public class GameManager : MonoBehaviour
         panelCuento.SetActive(true);
         botonVolver.gameObject.SetActive(false);
         botonVolverMenu.gameObject.SetActive(true);
-
+        panelFondoMascota.SetActive(false);
+        
         // Subir scroll al inicio
         ScrollRect scrollRect = panelCuento.GetComponentInChildren<ScrollRect>(true);
         if (scrollRect != null)
@@ -653,6 +778,7 @@ public class GameManager : MonoBehaviour
         // Mostrar panel del cuento
         panelCuento.SetActive(true);
         panelGeneros.SetActive(false);
+        panelFondoMascota.SetActive(false);
 
         botonVolverMenu.gameObject.SetActive(true);
 
@@ -660,4 +786,14 @@ public class GameManager : MonoBehaviour
         cuentosManager.MostrarCuento(cuento.texto, this);
     }
 
+    // Método auxiliar para debug
+    private void DebugEstado()
+    {
+        Debug.Log($"=== DEBUG ===");
+        Debug.Log($"Nivel: {nivelActual}");
+        Debug.Log($"EXP: {experienciaActual}/{experienciaPorNivel}");
+        Debug.Log($"Texto EXP: {textoExperiencia?.text}");
+        Debug.Log($"Mascota activa: {mascotaSpriteRenderer?.gameObject.activeSelf}");
+        Debug.Log($"Sprite asignado: {mascotaSpriteRenderer?.sprite?.name ?? "null"}");
+    }
 }

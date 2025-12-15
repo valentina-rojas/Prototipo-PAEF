@@ -25,9 +25,10 @@ public class OrdenarFrasesManager : MonoBehaviour
             botonVolverMenu.onClick.AddListener(() =>
             {
                 panelOrdenarFrase.SetActive(false);
-                gameManager.botonVolverMenu.gameObject.SetActive(false);
-                gameManager.botonAlimentar.interactable = true;
-                gameManager.botonLecturaAleatoria.interactable = true;
+                if (gameManager != null)
+                {
+                    gameManager.VolverAlPrincipal();
+                }
             });
         }
 
@@ -62,7 +63,6 @@ public class OrdenarFrasesManager : MonoBehaviour
 
             GameObject btnGO = Instantiate(prefabFrase, slot);
 
-            // Forzar posición dentro del slot
             RectTransform rt = btnGO.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0.5f, 0.5f);
             rt.anchorMax = new Vector2(0.5f, 0.5f);
@@ -110,7 +110,6 @@ public class OrdenarFrasesManager : MonoBehaviour
         return masCercano;
     }
 
-
     public void ReordenarFrases()
     {
         botonesFrases.Clear();
@@ -121,7 +120,6 @@ public class OrdenarFrasesManager : MonoBehaviour
                 botonesFrases.Add(slot.GetChild(0).gameObject);
         }
     }
-
 
     void Verificar(string[] ordenCorrecto)
     {
@@ -143,7 +141,13 @@ public class OrdenarFrasesManager : MonoBehaviour
             AudioManager.instance.sonidoRespuestaCorrecta.Play();
             feedbackTexto.text = "¡Correcto!";
             feedbackTexto.color = Color.green;
-            gameManager.GanarExperiencia(1);
+            
+            if (gameManager != null)
+            {
+                gameManager.GanarExperiencia(1);
+                
+                StartCoroutine(VolverAutomaticamente());
+            }
 
             foreach (var boton in botonesFrases)
             {
@@ -151,7 +155,6 @@ public class OrdenarFrasesManager : MonoBehaviour
                 if (imagen != null) imagen.color = verdeClarito;
             }
 
-            botonVolverMenu.gameObject.SetActive(true);
             botonVerificar.gameObject.SetActive(false);
         }
         else
@@ -165,7 +168,6 @@ public class OrdenarFrasesManager : MonoBehaviour
                 Image imagen = boton.GetComponent<Image>();
                 if (imagen != null) imagen.color = rojoClarito;
 
-                // 🔹 Deshabilitar drag
                 FraseDraggable fd = boton.GetComponent<FraseDraggable>();
                 if (fd != null) fd.dragHabilitado = false;
             }
@@ -175,8 +177,18 @@ public class OrdenarFrasesManager : MonoBehaviour
         }
     }
 
+    private System.Collections.IEnumerator VolverAutomaticamente()
+    {
+        yield return new WaitForSeconds(2f);
+        
+        panelOrdenarFrase.SetActive(false);
+        if (gameManager != null)
+        {
+            gameManager.VolverAlPrincipal();
+        }
+    }
 
-   private void ReiniciarOrden()
+    private void ReiniciarOrden()
     {
         foreach (var boton in botonesFrases)
         {
@@ -189,5 +201,4 @@ public class OrdenarFrasesManager : MonoBehaviour
 
         feedbackTexto.text = "";
     }
-
 }

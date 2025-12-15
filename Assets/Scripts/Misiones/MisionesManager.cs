@@ -34,7 +34,6 @@ public class MisionesManager : MonoBehaviour
     [Header("Texto misiones completadas")]
     [SerializeField] private TMP_Text textoMisionesCompletadas;
 
-
     [Header("Referencia GameManager")]
     [SerializeField] private GameManager gameManager;
 
@@ -47,7 +46,7 @@ public class MisionesManager : MonoBehaviour
         if (panelMisiones != null)
             panelMisiones.SetActive(false);
 
-        botonAbrirMisiones?.onClick.AddListener(TogglePanel);
+        botonAbrirMisiones?.onClick.AddListener(AbrirPanel);
         botonCerrarMisiones?.onClick.AddListener(CerrarPanel);
 
         CrearTodasLasMisiones();
@@ -55,8 +54,39 @@ public class MisionesManager : MonoBehaviour
         MostrarMisiones(misionesActivas);
     }
 
-    private void TogglePanel() => panelMisiones.SetActive(!panelMisiones.activeSelf);
-    private void CerrarPanel() => panelMisiones.SetActive(false);
+    private void AbrirPanel()
+    {
+        panelMisiones.SetActive(true);
+        
+        if (gameManager != null && gameManager.panelFondoMascota != null)
+        {
+            gameManager.panelFondoMascota.SetActive(false);
+        }
+        
+        if (gameManager != null)
+        {
+            gameManager.botonAlimentar.interactable = false;
+            gameManager.botonLecturaAleatoria.interactable = false;
+            gameManager.botonVolverMenu.gameObject.SetActive(true);
+        }
+    }
+
+    private void CerrarPanel()
+    {
+        panelMisiones.SetActive(false);
+        
+        if (gameManager != null && gameManager.panelFondoMascota != null)
+        {
+            gameManager.panelFondoMascota.SetActive(true);
+        }
+        
+        if (gameManager != null)
+        {
+            gameManager.botonAlimentar.interactable = true;
+            gameManager.botonLecturaAleatoria.interactable = true;
+            gameManager.botonVolverMenu.gameObject.SetActive(false);
+        }
+    }
 
     private void CrearTodasLasMisiones()
     {
@@ -107,7 +137,6 @@ public class MisionesManager : MonoBehaviour
 
     public void MostrarMisiones(List<Mision> misiones)
     {
-        // Limpiar UI anterior
         foreach (var obj in misionesUI)
             Destroy(obj);
         misionesUI.Clear();
@@ -140,14 +169,10 @@ public class MisionesManager : MonoBehaviour
                 continue;
             }
 
-            // Actualizar descripción
             ui.textoDescripcion.text = misionActual.descripcion;
             ui.textoDescripcion.color = misionActual.completada ? Color.green : Color.white;
-
-            // Limpiar listeners previos
             ui.boton.onClick.RemoveAllListeners();
 
-            // Configurar botón según estado de la misión
             if (!misionActual.completada)
             {
                 ui.textoBoton.text = "Ir a la misión";
@@ -170,8 +195,6 @@ public class MisionesManager : MonoBehaviour
         }
     }
 
-
-    // Listener seguro para "Ir a la misión"
     private UnityEngine.Events.UnityAction CreateListenerMision(Mision mision)
     {
         return () =>
@@ -181,19 +204,15 @@ public class MisionesManager : MonoBehaviour
 
             if (mision.tipo == MisionTipo.LeerCuento)
             {
-                // Misión general → abrir cuento aleatorio
                 gameManager.IniciarLecturaCompletamenteAleatoria();
             }
             else if (mision.tipo == MisionTipo.LeerCuentoGenero)
             {
-                // Misión de género → abrir cuento aleatorio DIRECTO
                 gameManager.IniciarCuentoDesdeMision(mision.parametro);
             }
         }; 
     }
 
-
-    // Listener seguro para "Reclamar"
     private UnityEngine.Events.UnityAction CreateListenerReclamar(Mision mision)
     {
         return () =>
