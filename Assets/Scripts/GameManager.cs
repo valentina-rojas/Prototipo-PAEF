@@ -343,7 +343,7 @@ public class GameManager : MonoBehaviour
     private void CerrarPanelVolver()
     {
         panelConfirmarVolver.SetActive(false);
-        panelFondoMascota.SetActive(true);
+        panelFondoMascota.SetActive(false);
     }
 
     private void ConfirmarVolver()
